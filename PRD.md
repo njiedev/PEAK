@@ -23,13 +23,15 @@ PEAK uses spatial metaphor and AI-generated personalization to make learning fee
 Sixty seconds. The judge watches:
 
 1. A kid types a skill they want to learn
-2. The mountain appears, zoomed in tight on the first waypoint
-3. The kid clicks the waypoint → a small challenge appears
-4. They submit something (a typed answer or an uploaded photo)
-5. Claude responds with personalized feedback
-6. The waypoint fills in with their trail color
-7. The camera zooms out, revealing the full route winding up to the peak
+2. **Opening reveal animation:** the camera starts zoomed all the way in on the **peak** of the mountain (the final destination). It holds there for a beat so the kid sees their goal. Then it pulls back smoothly, revealing the full mountain and the entire route winding from base to summit. This is the "here's what you're climbing" moment.
+3. The camera then zooms in and settles on the **current waypoint** (waypoint 1 for a new user), which pulses or glows to mark it as active. The other waypoints are visible but visually dimmed.
+4. The kid clicks the active waypoint → a small challenge appears
+5. They submit something (a typed answer or an uploaded photo)
+6. Claude responds with personalized feedback
+7. The waypoint fills in with their trail color and the next waypoint becomes the active highlight
 8. They click the next waypoint and it begins again
+
+The opening reveal is the demo's emotional peak. It must be smooth, intentional, and timed for impact (not snappy, not slow — around 2.5-3 seconds total: ~0.8s held on peak, ~1.5s zoom out, ~0.5s settle on active waypoint).
 
 Everything else is cut. If we have time we add polish on top of this loop.
 
@@ -39,11 +41,13 @@ Everything else is cut. If we have time we add polish on top of this loop.
 - Claude integration that generates a route as structured JSON
 - Mountain illustration with an SVG route path drawn on top
 - Waypoints rendered as clickable points along the path
-- Challenge card UI that opens when a waypoint is tapped
+- **Opening reveal animation:** camera starts zoomed on the peak, pulls back to show the full mountain, then zooms in and settles on the user's current waypoint
+- Active waypoint is visually highlighted (pulse, glow, or scale effect); other waypoints are dimmed
+- Challenge card UI that opens when the active waypoint is tapped
 - One challenge type that accepts user input (text or photo)
 - Claude-powered feedback on the user's submission
 - A trail color that fills in completed sections of the route
-- A zoom-out animation triggered after a waypoint completes
+- Highlight transfers to the next waypoint after a completion
 - Local state persistence (in-memory or localStorage is fine)
 
 ## Soft scope (only if ahead of schedule)
