@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
-import { handleZodError } from '../lib/errors'
+import { handleZodError, handleRouteError } from '../lib/errors'
+import { evaluateSubmission } from '../../ai/evaluate'
 
 const router = Router()
 
@@ -38,15 +39,17 @@ router.post('/', async (req: Request, res: Response) => {
     return
   }
 
-  // evaluateSubmission is not yet implemented in ai/evaluate.ts
-  // Return encouraging mock feedback until Mohammed ships it
-  res.json({
-    ok: true,
-    data: {
-      feedback: `Great work on "${waypoint.title}"! You gave it a real shot and that's what counts. Keep climbing — the next waypoint is waiting for you!`,
-      passed: true,
-    },
-  })
+  // Bridge HTTP body to Mohammed's Submission type: string | { imageBase64: string }
+  const aiSubmission = submission.imageBase64
+    ? { imageBase64: submission.imageBase64 }
+    : submission.text!
+
+  try {
+    const feedback = await evaluateSubmission(waypoint, aiSubmission)
+    res.json({ ok: true, data: feedback })
+  } catch (err) {
+    handleRouteError(res, err, 'evaluation failed, please try again')
+  }
 })
 
 export default router
