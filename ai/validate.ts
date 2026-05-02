@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { Route } from '../shared/schema'
+import type { Route, Feedback } from '../shared/schema'
 
 // Runtime validation for Claude's route JSON output.
 // Mirrors shared/schema.ts. If that file changes, change this in the same commit.
@@ -45,5 +45,20 @@ export function safeParseRoute(
   | { success: false; error: string } {
   const result = RouteSchema.safeParse(input)
   if (result.success) return { success: true, data: result.data as Route }
+  return { success: false, error: result.error.toString() }
+}
+
+export const FeedbackSchema = z.object({
+  feedback: z.string().min(1),
+  passed: z.boolean(),
+})
+
+export function safeParseFeedback(
+  input: unknown,
+):
+  | { success: true; data: Feedback }
+  | { success: false; error: string } {
+  const result = FeedbackSchema.safeParse(input)
+  if (result.success) return { success: true, data: result.data as Feedback }
   return { success: false, error: result.error.toString() }
 }
