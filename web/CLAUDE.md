@@ -49,16 +49,37 @@ This is the hardest visual piece. Approach:
 
 5. **Trail fill.** The path is two overlaid SVG paths: a faint grey "planned" route always visible, and a vivid "completed" route that grows in length as waypoints are completed. Use `stroke-dasharray` and `stroke-dashoffset` to animate the trail growing.
 
-### Hour 8-12: The zoom-out reveal
+### Hour 8-12: The opening reveal animation
 
-The money moment. When the first waypoint completes:
+This is the money moment of the entire demo. It runs **once**, right after the route is generated, before the user has done anything. The sequence:
 
-- The mountain SVG container scales from `1.5` (zoomed in on the first waypoint) down to `1.0` (full mountain visible)
-- Use a CSS transition or framer-motion (already in shadcn-friendly stacks) over ~1.5 seconds
-- The `transform-origin` is the position of the first waypoint, so the zoom feels like it's "pulling back" from where they were
-- Add a subtle camera shake or ease for drama
+1. **Hold on the peak (~0.8s).** Camera starts zoomed in tight on the *summit* of the mountain — the final waypoint, the destination. The user sees their goal first. Optionally a small text overlay like "Your goal" or just the peak waypoint glowing.
+2. **Pull back (~1.5s).** Camera smoothly zooms out from scale ~2.0 down to scale 1.0, revealing the full mountain and the entire route winding from base to summit. Use an ease-out curve so it feels like it's "settling" into the wide view, not just shrinking linearly.
+3. **Settle on active waypoint (~0.5s).** Camera then zooms back in partially (scale ~1.3) and pans to the user's current waypoint (waypoint 1 for a new user). That waypoint pulses or glows to mark it active. Other waypoints are visible but dimmed (~40% opacity).
 
-Test this with mock data over and over until it feels right. This is the demo's emotional peak.
+Implement with framer-motion's `animate` controls or a sequence of CSS transitions. The `transform-origin` shifts between phases — peak position for the pull-back, active waypoint position for the settle. You can do this by wrapping the mountain SVG in a `<motion.div>` and animating both `scale` and `transformOrigin` together.
+
+Critical details:
+- Skip-able. Click anywhere or press space to fast-forward to the active waypoint state. Judges might want to demo without waiting through the animation a second time.
+- Runs only on first load of a route. Subsequent waypoint completions just transfer the highlight to the next waypoint — no full reveal again.
+- Active waypoint highlight is a separate persistent visual state (pulsing glow ring around the circle), not part of the reveal animation. The reveal ends with the highlight already visible.
+
+Test this with mock data over and over until it feels right. This is what the judges will remember.
+
+### Hour 12-14: Active waypoint highlight + transitions
+
+The active waypoint (the one the user should tackle next) is visually distinct at all times:
+
+- Larger than other waypoints (~1.4x)
+- Has a soft pulsing glow ring (CSS animation, 2s cycle)
+- Full opacity color, while completed waypoints show their trail color and uncompleted future waypoints are dimmed
+- When clicked, opens the challenge card
+
+When a challenge is completed:
+- Current waypoint snaps to "completed" state (trail color, no pulse)
+- Trail fills forward to the next waypoint (the dasharray animation)
+- Next waypoint scales up and starts pulsing — it's now active
+- Optional: brief camera pan to the new active waypoint (~0.4s)
 
 ### Hour 12-16: Challenge card + feedback
 
@@ -100,8 +121,8 @@ If the API is slow or broken, you're on mock data and that's fine. The demo can 
 
 If the SVG path math gets gnarly, ask Mohammed for help. Path interpolation is well-trodden territory and there's example code online.
 
-If the zoom-out doesn't feel right, iterate. This is the most important visual moment in the entire app and it's worth spending an extra hour on.
+If the opening reveal doesn't feel right, iterate. This is the most important visual moment in the entire app and it's worth spending an extra hour on.
 
 ## Definition of done
 
-The user can: type a skill → see the mountain zoomed in on the first waypoint → click that waypoint → fill out the challenge → submit → see Claude's feedback → close the card → see the trail extend → see the camera zoom out and reveal the full route → click the next waypoint. All of this works smoothly, looks polished, and runs in under 60 seconds.
+The user can: type a skill → watch the opening reveal (zoomed on peak → pull back to full mountain → settle on active waypoint with highlight) → click the active waypoint → fill out the challenge → submit → see Claude's feedback → close the card → see the trail extend → see the highlight transfer to the next waypoint → click that one. All of this works smoothly, looks polished, and runs in under 60 seconds.
