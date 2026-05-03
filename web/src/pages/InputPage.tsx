@@ -14,7 +14,7 @@ function InputPage() {
         <>
         <div className="relative w-full h-screen bg-black overflow-hidden flex items-center justify-center">
             <StarField></StarField>
-            <div className="relative z-10">
+            <div className="relative z-10 w-full max-w-lg px-4">
                 <SkillInput></SkillInput>
             </div>
 
