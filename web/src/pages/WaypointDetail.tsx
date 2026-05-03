@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { useRef, useState, type ChangeEvent, useEffect } from "react"
 import Waypoint from "../components/Waypoint"
 import type { Waypoint as WaypointData, Route, Feedback } from "../../../shared/schema"
-import mountainImg from "../assets/mountain.png"
+import mountainImg from "../assets/mountain2.png"
 import { pickPosition } from "../lib/pathMath"
 import { evaluateSubmission } from "../api"
 import { useProgress } from "../lib/ProgressContext"
@@ -62,6 +62,7 @@ function WaypointDetail() {
   const [showReview, setShowReview] = useState(alreadyCompleted)
   const [isExiting, setIsExiting] = useState(false)
 
+  const isLocked = index > activeIndex
   const statusKey = alreadyCompleted || feedback?.passed ? "completed" : feedback ? "in_progress" : "not_completed"
   const status = STATUS_META[statusKey]
 
@@ -142,7 +143,7 @@ function WaypointDetail() {
   }
 
   async function handleSubmit() {
-    if (submitting || alreadyCompleted) return
+    if (submitting || alreadyCompleted || isLocked) return
     if (isFileChallenge ? !file : !submission.trim()) return
 
     setSubmitting(true)
@@ -188,7 +189,7 @@ function WaypointDetail() {
   }
 
   return (
-    <div className="relative w-full min-h-screen overflow-hidden text-white bg-[#0a0a0f]">
+    <div className="relative w-full min-h-screen">
       {/* zooming stage — mountain + campfire grow together as one motion */}
       <div
         className={`pointer-events-none absolute inset-0 detail-zoom-stage ${isExiting ? 'exiting' : ''}`}
@@ -241,7 +242,6 @@ function WaypointDetail() {
           </div>
         )}
       </div>
-
       {/* initial vignette */}
       <div
         className="pointer-events-none absolute inset-0"
@@ -339,8 +339,17 @@ function WaypointDetail() {
             {/* divider */}
             <div className="my-7 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
 
+            {isLocked && (
+              <div className="mb-5 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-4 text-sm text-white/70">
+                <div className="mb-1 flex items-center gap-2 text-[0.7rem] uppercase tracking-[0.3em] text-white/40">
+                  <span>🔒</span> Locked
+                </div>
+                Finish the waypoints before this one to unlock the challenge.
+              </div>
+            )}
+
             {/* submission */}
-            <div>
+            <div className={isLocked ? "pointer-events-none opacity-50" : ""}>
               <h3 className="text-[0.7rem] uppercase tracking-[0.3em] text-white/40 mb-3">
                 {isFileChallenge ? FILE_META[challengeType as "photo" | "code" | "pdf"].label : "Your answer"}
               </h3>
@@ -372,7 +381,7 @@ function WaypointDetail() {
             )}
 
             {/* big submit */}
-            {!alreadyCompleted && (
+            {!alreadyCompleted && !isLocked && (
               <button
                 type="button"
                 onClick={handleSubmit}

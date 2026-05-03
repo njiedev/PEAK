@@ -1,47 +1,20 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, type CSSProperties } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { generateRoute } from "../api"
 import type { Route, Waypoint as WaypointData } from "../../../shared/schema"
 import Waypoint from "../components/Waypoint"
-// import { pickPosition } from "../lib/pathMath"
-import { useProgress } from "../lib/ProgressContext"
+import StarField from "../components/Starfield"
 import mountainImg from "../assets/mountain2.png"
-import SkyBackground from "../components/SkyBackground"
+import { pickPosition } from "../lib/pathMath"
+import { useProgress } from "../lib/ProgressContext"
 
 type MountainLocationState = {
     skill?: string
     route?: Route
+    reveal?: boolean
 }
 
-// Switchback route up mountain.png. y is evenly spaced (~0.09 per step)
-// so campfires don't clump near the top. x swings wide, using the right
-// shoulder of the mountain (up to 0.72), narrowing naturally to the peak.
-const PATH_POSITIONS: { x: number; y: number }[] = [
-    { x: 0.18, y: 0.83 },  // base: far left foothills
-    { x: 0.72, y: 0.74 },  // traverse far right — uses right side of mountain
-    { x: 0.26, y: 0.64 },  // switchback far left
-    { x: 0.68, y: 0.55 },  // traverse right, mid-mountain
-    { x: 0.35, y: 0.46 },  // switchback left
-    { x: 0.59, y: 0.37 },  // traverse right, upper slope
-    { x: 0.44, y: 0.27 },  // switchback toward center
-    { x: 0.50, y: 0.18 },  // summit
-]
-
-function pickPosition(index: number, total: number) {
-    if (total <= PATH_POSITIONS.length) {
-        return PATH_POSITIONS[Math.min(index, PATH_POSITIONS.length - 1)]
-    }
-    // if more waypoints than slots, lerp between first and last
-    const t = index / (total - 1)
-    const slot = t * (PATH_POSITIONS.length - 1)
-    const lo = Math.floor(slot)
-    const hi = Math.min(lo + 1, PATH_POSITIONS.length - 1)
-    const f = slot - lo
-    return {
-        x: PATH_POSITIONS[lo].x + (PATH_POSITIONS[hi].x - PATH_POSITIONS[lo].x) * f,
-        y: PATH_POSITIONS[lo].y + (PATH_POSITIONS[hi].y - PATH_POSITIONS[lo].y) * f,
-    }
-}
+const REVEAL_DURATION_MS = 7200
 
 // Catmull-Rom → cubic bezier. Produces a smooth SVG path through every point.
 function smoothPath(pts: { x: number; y: number }[]): string {
@@ -70,8 +43,23 @@ function MountainPage() {
     const initialRoute = navigationState?.route ?? null
     const [route, setRoute] = useState<Route | null>(initialRoute)
     const [error, setError] = useState<string | null>(null)
-    
+    const [revealing, setRevealing] = useState(Boolean(navigationState?.reveal && initialRoute))
+
     const { activeIndex, isCompleted } = useProgress()
+
+    useEffect(() => {
+        if (!revealing) return
+        // Clear the reveal flag from history so navigating back here doesn't replay it.
+        navigate(location.pathname, {
+            replace: true,
+            state: { ...(navigationState ?? {}), reveal: false },
+        })
+        const t = window.setTimeout(() => setRevealing(false), REVEAL_DURATION_MS)
+        return () => window.clearTimeout(t)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    const peakPos = route ? pickPosition(route.route.length - 1, route.route.length) : { x: 0.5, y: 0.18 }
 
     useEffect(() => {
         if (!skill) return
@@ -123,8 +111,11 @@ function MountainPage() {
     }
 
     return (
-        <div className="relative w-full min-h-screen overflow-hidden bg-[#0a0a0f] text-white">
-            <SkyBackground></SkyBackground>
+        <div className="relative w-full min-h-screen">
+            <div
+                className={revealing ? "mountain-reveal-stage absolute inset-0" : "absolute inset-0"}
+                style={revealing ? ({ ["--peak-x"]: peakPos.x, ["--peak-y"]: peakPos.y } as CSSProperties) : undefined}
+            >
             {/* mountain background */}
             <img
                 src={mountainImg}
@@ -219,9 +210,24 @@ function MountainPage() {
                     </div>
                 )
             })()}
+            </div>
+
+            {/* reveal overlay — black + descending stars covering everything, fades out */}
+            {revealing && (
+                <div className="mountain-reveal-overlay">
+                    <StarField mode="descent" />
+                </div>
+            )}
+
+            {/* peak title shown during the reveal hold */}
+            {revealing && route && (
+                <h1 className="mountain-reveal-title text-5xl md:text-7xl font-bold tracking-tight px-6">
+                    {route.skill}
+                </h1>
+            )}
 
             {/* header */}
-            <header className="relative z-20 flex items-center justify-between px-8 py-5">
+            <header className={(revealing ? "mountain-reveal-chrome " : "") + "relative z-20 flex items-center justify-between px-8 py-5"}>
                 <Link to="/" className="text-sm text-white/70 hover:text-white">
                     ← back
                 </Link>
