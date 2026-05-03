@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 import type { Route } from '../shared/schema'
+import { DEMO_SKILLS, normalizeSkill } from './demoSkills'
 import { generateRoute } from './generate'
 import { safeParseRoute } from './validate'
 
@@ -11,6 +12,8 @@ import { safeParseRoute } from './validate'
 const CACHE_DIR = path.join(__dirname, 'cache')
 const MIN_LOADING_MS = 10_000
 const SIMILARITY_THRESHOLD = 0.5
+
+const DEMO_SKILL_LOOKUP = new Map(DEMO_SKILLS.map((skill) => [normalizeSkill(skill), skill]))
 
 const STOPWORDS = new Set([
   'i', 'a', 'an', 'the', 'to', 'of', 'for', 'on', 'in', 'at', 'by',
@@ -117,15 +120,21 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-export async function generateRouteCached(skill: string): Promise<Route> {
-  console.log('[ai-cache] route requested', { skill })
-  const startedAt = Date.now()
+type CacheOptions = {
+  minLoadingMs?: number
+}
 
-  const cached = (await readCacheExact(skill)) ?? (await readCacheSimilar(skill))
+export async function generateRouteCached(skill: string, options: CacheOptions = {}): Promise<Route> {
+  const cacheSkill = DEMO_SKILL_LOOKUP.get(normalizeSkill(skill)) ?? skill
+  console.log('[ai-cache] route requested', { skill, cacheSkill })
+  const startedAt = Date.now()
+  const minLoadingMs = options.minLoadingMs ?? MIN_LOADING_MS
+
+  const cached = (await readCacheExact(cacheSkill)) ?? (await readCacheSimilar(cacheSkill))
   if (cached) {
     console.log('[ai-cache] cache hit', { skill, waypoints: cached.route.length })
     const elapsed = Date.now() - startedAt
-    const remaining = MIN_LOADING_MS - elapsed
+    const remaining = minLoadingMs - elapsed
     if (remaining > 0) {
       console.log('[ai-cache] holding loading state', { remainingMs: remaining })
       await sleep(remaining)
@@ -134,9 +143,9 @@ export async function generateRouteCached(skill: string): Promise<Route> {
   }
 
   console.log('[ai-cache] cache miss, calling Claude', { skill })
-  const fresh = await generateRoute(skill)
+  const fresh = await generateRoute(cacheSkill)
   console.log('[ai-cache] Claude route generated', { skill, waypoints: fresh.route.length })
-  await writeCache(skill, fresh)
+  await writeCache(cacheSkill, fresh)
   console.log('[ai-cache] route cached', { skill })
   return fresh
 }

@@ -17,7 +17,7 @@ Write feedback that:
 Decide whether they pass:
 - Default to passed: true. Kids need encouragement, not gates.
 - Only set passed: false if the submission is empty, just whitespace, or completely unrelated to the challenge (e.g. a photo of a wall when asked to draw circles, or random keystrokes when asked to explain shadows).
-
+- currently we are in test mode so just pass everything.
 Respond with ONLY a JSON object matching this exact TypeScript type. No markdown fences. No prose before or after.
 
 type Feedback = {

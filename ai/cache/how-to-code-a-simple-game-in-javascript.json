@@ -1,0 +1,150 @@
+{
+  "skill": "how to code a simple game in javascript?",
+  "estimatedHours": 18,
+  "route": [
+    {
+      "id": 1,
+      "title": "Set Up Your Game Canvas",
+      "summary": "Create an HTML file with a canvas element where your game will live. This is the blank screen where everything you code will appear.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Create an HTML file called 'game.html' with a canvas element (600x400 pixels) and a script tag linking to 'game.js'. The canvas should have a black background. Submit your game.html file."
+      },
+      "difficulty": 1,
+      "x": 0.5,
+      "y": 0.92
+    },
+    {
+      "id": 2,
+      "title": "Draw Your Player Character",
+      "summary": "Use JavaScript to draw a simple square on the canvas. This square is your player character that will move around later.",
+      "challenge": {
+        "type": "code",
+        "prompt": "In game.js, write code that draws a 30x30 pixel blue square at position (100, 300) on your canvas. This is your player. Submit your game.js file showing the drawing code."
+      },
+      "difficulty": 1,
+      "x": 0.7851863552196594,
+      "y": 0.8436363636363636
+    },
+    {
+      "id": 3,
+      "title": "Make Your Player Move Left and Right",
+      "summary": "Add keyboard controls so when you press the arrow keys, your player square moves across the screen.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Add code that listens for left and right arrow key presses and moves your player square 5 pixels in that direction each time. The square should stay on screen (don't let it go past the edges). Submit your updated game.js file."
+      },
+      "difficulty": 2,
+      "x": 0.7587188492222688,
+      "y": 0.7672727272727273
+    },
+    {
+      "id": 4,
+      "title": "Add Gravity and Jumping",
+      "summary": "Make your game feel real by adding gravity that pulls the player down, and a jump button that makes them go up.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Add gravity that pulls your player down by 0.5 pixels per frame until they hit the bottom of the canvas. When you press the spacebar, make the player jump up by setting their upward speed to -10. Submit your game.js file showing jumping and gravity working."
+      },
+      "difficulty": 3,
+      "x": 0.4495213778741604,
+      "y": 0.6909090909090909
+    },
+    {
+      "id": 5,
+      "title": "Create Platforms to Land On",
+      "summary": "Draw 3 rectangular platforms at different heights. Your player should be able to land on these platforms instead of only the ground.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Add an array of 3 platform objects (each with x, y, width, height properties) and draw them as green rectangles. Make your player stop falling when they land on top of any platform. Submit your game.js file with working platforms."
+      },
+      "difficulty": 3,
+      "x": 0.1954873363553548,
+      "y": 0.6145454545454545
+    },
+    {
+      "id": 6,
+      "title": "Add Collectible Coins",
+      "summary": "Place 5 yellow circles around the platforms. When the player touches a coin, it disappears and you get a point.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Create 5 coin objects (yellow circles, 15 pixels wide) placed above your platforms. Add collision detection so when your player touches a coin, it disappears and a score counter increases. Display the score in the top-left corner. Submit your game.js file."
+      },
+      "difficulty": 3,
+      "x": 0.2742270958174746,
+      "y": 0.5381818181818183
+    },
+    {
+      "id": 7,
+      "title": "Add a Moving Enemy",
+      "summary": "Create a red square enemy that moves back and forth on one of the platforms. If it touches the player, something bad should happen.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Add one enemy (a red 25x25 square) that moves left and right on the middle platform, bouncing when it hits the platform edges. When the player touches the enemy, display 'Game Over!' on the screen and stop the game. Submit your game.js file."
+      },
+      "difficulty": 4,
+      "x": 0.5996932363242812,
+      "y": 0.4618181818181819
+    },
+    {
+      "id": 8,
+      "title": "Add a Victory Condition",
+      "summary": "Place a special golden star at the top platform. When the player collects all coins AND touches the star, they win the game.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Add a golden star object at the highest platform. The player can only collect it after getting all 5 coins. When they touch the star with all coins collected, display 'You Win!' and stop the game. Submit your game.js file."
+      },
+      "difficulty": 3,
+      "x": 0.8162138348406401,
+      "y": 0.3854545454545455
+    },
+    {
+      "id": 9,
+      "title": "Add a Timer Challenge",
+      "summary": "Give the player 30 seconds to beat the game. Display a countdown timer and end the game when time runs out.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Add a 30-second countdown timer displayed in the top-right corner. Each second, decrease the timer by 1. If it reaches 0 before the player wins, show 'Time's Up!' and end the game. Submit your game.js file."
+      },
+      "difficulty": 3,
+      "x": 0.6871735017253637,
+      "y": 0.3090909090909091
+    },
+    {
+      "id": 10,
+      "title": "Add Sound Effects",
+      "summary": "Make your game feel alive by adding simple beep sounds when the player jumps, collects coins, and wins or loses.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Add three sound effects using the Web Audio API or simple audio files: one for jumping, one for collecting coins, and one for game over/victory. The sounds should play at the right moments. Submit your complete game files (HTML, JS, and any audio files in a zip)."
+      },
+      "difficulty": 4,
+      "x": 0.35358851399189717,
+      "y": 0.23272727272727278
+    },
+    {
+      "id": 11,
+      "title": "Add a Restart Button",
+      "summary": "When the game ends (win or lose), show a button that lets the player start over from the beginning without refreshing the page.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Add a 'Play Again' button that appears when the game ends. Clicking it should reset all variables (player position, coins, score, timer, enemy position) and restart the game loop. Submit your updated game files."
+      },
+      "difficulty": 3,
+      "x": 0.18000313390377487,
+      "y": 0.15636363636363648
+    },
+    {
+      "id": 12,
+      "title": "Polish and Share Your Game",
+      "summary": "Add a title screen, improve the visuals, test everything works perfectly, and create a README explaining how to play your finished game.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Add a title screen that shows 'Platform Jumper' and 'Press SPACE to Start' before the game begins. Make at least 3 visual improvements (better colors, smoother animations, particle effects, background, etc.). Create a README.txt file explaining the controls and goal. Submit everything as a single zip file of your completed game."
+      },
+      "difficulty": 5,
+      "x": 0.356112811348928,
+      "y": 0.08000000000000007
+    }
+  ]
+}

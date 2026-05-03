@@ -1,11 +1,17 @@
 import { useLocation, useNavigate } from "react-router-dom"
-import { useRef, useState, type ChangeEvent, useEffect } from "react"
+import { useRef, useState, type ChangeEvent } from "react"
 import Waypoint from "../components/Waypoint"
 import type { Waypoint as WaypointData, Route, Feedback } from "../../../shared/schema"
 import mountainImg from "../assets/mountain2.png"
 import { pickPosition } from "../lib/pathMath"
 import { evaluateSubmission } from "../api"
 import { useProgress } from "../lib/ProgressContext"
+
+type JourneyStats = {
+  totalAttempts: number
+  longestTaskMs: number
+  shortestTaskMs: number | null
+}
 
 type DetailLocationState = {
   waypoint?: WaypointData
@@ -36,6 +42,48 @@ const STATUS_META = {
   completed:     { label: "Completed",   dot: "bg-emerald-300", text: "text-emerald-200" },
 }
 
+const JOURNEY_STATS_STORAGE_KEY_PREFIX = "peak_journey_stats"
+
+function journeyStatsKey(scope: string): string {
+  return `${JOURNEY_STATS_STORAGE_KEY_PREFIX}_${scope}`
+}
+
+function readJourneyStats(scope: string): JourneyStats {
+  try {
+    const saved = localStorage.getItem(journeyStatsKey(scope))
+    if (!saved) return { totalAttempts: 0, longestTaskMs: 0, shortestTaskMs: null }
+
+    const parsed = JSON.parse(saved) as Partial<JourneyStats>
+    return {
+      totalAttempts: Number.isFinite(parsed.totalAttempts) ? Number(parsed.totalAttempts) : 0,
+      longestTaskMs: Number.isFinite(parsed.longestTaskMs) ? Number(parsed.longestTaskMs) : 0,
+      shortestTaskMs: Number.isFinite(parsed.shortestTaskMs) ? Number(parsed.shortestTaskMs) : null,
+    }
+  } catch {
+    return { totalAttempts: 0, longestTaskMs: 0, shortestTaskMs: null }
+  }
+}
+
+function recordJourneyAttempt(scope: string, taskStartedAt: number | null) {
+  const elapsedMs = taskStartedAt === null ? 0 : Math.max(0, Date.now() - taskStartedAt)
+  const current = readJourneyStats(scope)
+  const next: JourneyStats = {
+    totalAttempts: current.totalAttempts + 1,
+    longestTaskMs: Math.max(current.longestTaskMs, elapsedMs),
+    shortestTaskMs: current.shortestTaskMs === null ? elapsedMs : Math.min(current.shortestTaskMs, elapsedMs),
+  }
+
+  localStorage.setItem(journeyStatsKey(scope), JSON.stringify(next))
+}
+
+function routeStorageScope(value: string): string {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "default"
+}
+
+function waypointStorageKey(kind: "submission" | "feedback", skill: string, waypointId: number) {
+  return `peak_${kind}_${routeStorageScope(skill)}_${waypointId}`
+}
+
 function WaypointDetail() {
   const location = useLocation()
   const navigate = useNavigate()
@@ -43,6 +91,7 @@ function WaypointDetail() {
   const wp = state?.waypoint ?? FALLBACK
   const index = state?.index ?? 0
   const total = state?.total ?? 8
+  const skill = state?.skill ?? "default"
   const focus = state?.focus ?? { x: 0.5, y: 0.5 }
   const fullRoute = state?.fullRoute
   
@@ -50,17 +99,18 @@ function WaypointDetail() {
   const alreadyCompleted = isCompleted(wp.id)
 
   const [submission, setSubmission] = useState(() => {
-    return localStorage.getItem(`peak_submission_${wp.id}`) || ""
+    return localStorage.getItem(waypointStorageKey("submission", skill, wp.id)) || ""
   })
   const [file, setFile] = useState<File | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [feedback, setFeedback] = useState<Feedback | null>(() => {
-    const saved = localStorage.getItem(`peak_feedback_${wp.id}`)
+    const saved = localStorage.getItem(waypointStorageKey("feedback", skill, wp.id))
     return saved ? JSON.parse(saved) : null
   })
   const [error, setError] = useState<string | null>(null)
   const [showReview, setShowReview] = useState(alreadyCompleted)
   const [isExiting, setIsExiting] = useState(false)
+  const taskStartedAtRef = useRef<number | null>(null)
 
   const isLocked = index > activeIndex
   const statusKey = alreadyCompleted || feedback?.passed ? "completed" : feedback ? "in_progress" : "not_completed"
@@ -92,20 +142,9 @@ function WaypointDetail() {
   }
 
   function handleFile(e: ChangeEvent<HTMLInputElement>) {
+    taskStartedAtRef.current ??= Date.now()
     const f = e.target.files?.[0] ?? null
     setFile(f)
-  }
-
-  async function fileToBase64(f: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.readAsDataURL(f)
-      reader.onload = () => {
-        const base64 = (reader.result as string).split(",")[1]
-        resolve(base64)
-      }
-      reader.onerror = (error) => reject(error)
-    })
   }
 
   // Re-encode any image as a downscaled JPEG (max 1600px on the long edge,
@@ -148,25 +187,31 @@ function WaypointDetail() {
 
     setSubmitting(true)
     setError(null)
+    recordJourneyAttempt(routeStorageScope(skill), taskStartedAtRef.current)
 
     try {
       let imageBase64: string | undefined
       let imageMime: string | undefined
+      let text: string | undefined = submission || undefined
       if (challengeType === "photo" && file) {
         const re = await imageToJpeg(file)
         imageBase64 = re.base64
         imageMime = re.mime
+      } else if ((challengeType === "code" || challengeType === "pdf") && file) {
+        const fileText = await file.text()
+        const trimmed = fileText.length > 60_000 ? fileText.slice(0, 60_000) + "\n\n…[truncated]" : fileText
+        text = `Uploaded file: ${file.name}\n\n${trimmed}`
       }
 
       const result = await evaluateSubmission(wp, {
-        text: submission || undefined,
+        text,
         imageBase64,
         imageMime,
       })
 
       setFeedback(result)
-      localStorage.setItem(`peak_feedback_${wp.id}`, JSON.stringify(result))
-      localStorage.setItem(`peak_submission_${wp.id}`, submission)
+      localStorage.setItem(waypointStorageKey("feedback", skill, wp.id), JSON.stringify(result))
+      localStorage.setItem(waypointStorageKey("submission", skill, wp.id), submission)
       
       if (result.passed) {
         markCompleted(wp.id)
@@ -221,7 +266,9 @@ function WaypointDetail() {
               return (
                 <div
                   key={waypoint.id}
-                  className={`absolute -translate-x-1/2 -translate-y-1/2 ${!isFocused ? 'detail-waypoint-fade-out' : ''}`}
+                  className={`absolute -translate-x-1/2 -translate-y-1/2 ${
+                    !isFocused ? (isExiting ? 'detail-waypoint-fade-in' : 'detail-waypoint-fade-out') : ''
+                  }`}
                   style={{ left: `${pos.x * 100}%`, top: `${pos.y * 100}%` }}
                 >
                   <Waypoint
@@ -256,34 +303,35 @@ function WaypointDetail() {
         className={`pointer-events-none absolute inset-0 detail-darken ${isExiting ? 'exiting' : ''}`}
         style={{
           background:
-            "radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.65) 70%, rgba(0,0,0,0.85) 100%)",
+            "radial-gradient(ellipse at 35% 28%, rgba(69,38,18,0.24) 0%, rgba(34,19,10,0.68) 62%, rgba(12,8,5,0.88) 100%)",
         }}
       />
+      <div className="pointer-events-none absolute inset-0 waypoint-woodgrain" />
 
       {/* top bar */}
       <header className={`relative z-20 flex items-center justify-between px-10 py-6 detail-content-in ${isExiting ? 'exiting' : ''}`}>
         <button
           type="button"
           onClick={goBack}
-          className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors"
+          className="waypoint-link"
         >
           <span className="text-base">←</span> back to mountain
         </button>
-        <div className="flex items-center gap-2 text-xs text-white/40 tracking-widest uppercase">
+        <div className="waypoint-kicker">
           <span>Waypoint {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}</span>
         </div>
       </header>
 
       {/* main split */}
-      <main className={`relative z-10 mx-auto flex max-w-7xl items-start gap-12 px-10 pb-16 detail-content-in ${isExiting ? 'exiting' : ''}`}>
+      <main className={`relative z-10 mx-auto flex max-w-7xl items-start gap-12 px-10 pb-16 detail-content-in waypoint-detail-layout ${isExiting ? 'exiting' : ''}`}>
         {/* LEFT — title + meta */}
         <section className="flex flex-1 flex-col gap-6 pt-12">
-          <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-amber-200/70">
-            <span className="h-px w-8 bg-amber-200/40" />
+          <div className="waypoint-kicker">
+            <span className="waypoint-kicker-rule" />
             {index === 0 ? "Base camp" : index === total - 1 ? "The Summit" : "Climbing on"}
           </div>
-          <h1 className="text-5xl font-bold tracking-tight">{wp.title}</h1>
-          <div className="flex items-center gap-4 text-sm text-white/60">
+          <h1 className="waypoint-title">{wp.title}</h1>
+          <div className="flex items-center gap-4 text-sm text-stone-200/72">
             <span className="inline-flex items-center gap-1.5">
               {Array.from({ length: 5 }).map((_, i) => (
                 <span
@@ -303,9 +351,9 @@ function WaypointDetail() {
             <div className="mt-4">
               <button
                 onClick={() => setShowReview(true)}
-                className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 text-sm text-emerald-400 hover:bg-emerald-500/20 transition-colors"
+                className="waypoint-chip"
               >
-                <span>👁</span> View your submission
+                View your submission
               </button>
             </div>
           )}
@@ -313,10 +361,10 @@ function WaypointDetail() {
 
         {/* RIGHT — content */}
         <section className="relative flex-1 pt-12">
-          <div className="relative">
+          <div className="waypoint-scroll-panel">
             {/* status */}
             <div className="mb-6 flex items-center justify-between">
-              <span className="text-[0.7rem] uppercase tracking-[0.3em] text-white/40">
+              <span className="waypoint-kicker">
                 Challenge
               </span>
               <span className={`inline-flex items-center gap-2 text-xs ${status.text}`}>
@@ -326,23 +374,23 @@ function WaypointDetail() {
             </div>
 
             {/* summary */}
-            <p className="text-[1.05rem] leading-relaxed text-white/85">{wp.summary}</p>
+            <p className="text-[1.05rem] leading-relaxed text-stone-50/88">{wp.summary}</p>
 
             {/* prompt */}
-            <div className="mt-6 rounded-lg border border-amber-200/20 bg-amber-200/[0.04] p-4">
-              <h3 className="text-[0.7rem] uppercase tracking-[0.3em] text-amber-200/70 mb-2">
+            <div className="waypoint-task-block">
+              <h3 className="waypoint-kicker mb-2">
                 Your task
               </h3>
-              <p className="text-sm leading-relaxed text-white/90">{wp.challenge.prompt}</p>
+              <p className="text-sm leading-relaxed text-stone-50/92">{wp.challenge.prompt}</p>
             </div>
 
             {/* divider */}
-            <div className="my-7 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+            <div className="waypoint-divider" />
 
             {isLocked && (
-              <div className="mb-5 rounded-lg border border-white/10 bg-white/[0.03] px-4 py-4 text-sm text-white/70">
-                <div className="mb-1 flex items-center gap-2 text-[0.7rem] uppercase tracking-[0.3em] text-white/40">
-                  <span>🔒</span> Locked
+              <div className="waypoint-locked">
+                <div className="waypoint-kicker mb-1">
+                  Locked
                 </div>
                 Finish the waypoints before this one to unlock the challenge.
               </div>
@@ -350,7 +398,7 @@ function WaypointDetail() {
 
             {/* submission */}
             <div className={isLocked ? "pointer-events-none opacity-50" : ""}>
-              <h3 className="text-[0.7rem] uppercase tracking-[0.3em] text-white/40 mb-3">
+              <h3 className="waypoint-submission-label">
                 {isFileChallenge ? FILE_META[challengeType as "photo" | "code" | "pdf"].label : "Your answer"}
               </h3>
               {isFileChallenge ? (
@@ -364,19 +412,32 @@ function WaypointDetail() {
               ) : (
                 <textarea
                   value={submission}
-                  onChange={(e) => setSubmission(e.target.value)}
+                  onChange={(e) => {
+                    taskStartedAtRef.current ??= Date.now()
+                    setSubmission(e.target.value)
+                  }}
                   placeholder="Tell the guide what you did..."
                   rows={4}
                   disabled={submitting || alreadyCompleted}
-                  className="w-full resize-none rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-amber-200/40 focus:outline-none focus:ring-2 focus:ring-amber-200/20 transition-colors disabled:opacity-50"
+                  className="waypoint-answer"
                 />
               )}
             </div>
 
             {/* error display */}
             {error && (
-              <div className="mt-4 rounded-md bg-red-500/10 border border-red-500/20 px-4 py-2 text-xs text-red-400">
+              <div className="mt-4 rounded-md bg-red-950/40 border border-red-300/20 px-4 py-2 text-xs text-red-200">
                 {error}
+              </div>
+            )}
+
+            {feedback && (
+              <div className={`mt-4 rounded-md border px-4 py-3 text-sm ${
+                feedback.passed
+                  ? "border-emerald-300/20 bg-emerald-950/30 text-emerald-100"
+                  : "border-amber-300/20 bg-amber-950/30 text-amber-100"
+              }`}>
+                {feedback.feedback}
               </div>
             )}
 
@@ -386,22 +447,11 @@ function WaypointDetail() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={(isFileChallenge ? !file : !submission.trim()) || submitting}
-                className="group relative mt-5 w-full overflow-hidden rounded-xl border border-amber-300/30 px-6 py-4 text-base font-semibold tracking-wide text-amber-50 transition-all hover:border-amber-300/60 hover:shadow-[0_0_40px_-5px_rgba(255,180,80,0.5)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:shadow-none"
-                style={{
-                  background:
-                    "linear-gradient(135deg, rgba(255,150,60,0.25) 0%, rgba(255,80,30,0.15) 100%)",
-                }}
+                className="waypoint-action"
               >
                 <span className="relative z-10">
                   {submitting ? "Sending to the guide..." : "Submit & climb on"}
                 </span>
-                <span
-                  className="pointer-events-none absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100"
-                  style={{
-                    background:
-                      "radial-gradient(circle at center, rgba(255,200,120,0.25) 0%, transparent 70%)",
-                  }}
-                />
               </button>
             )}
 
@@ -410,62 +460,16 @@ function WaypointDetail() {
               <button
                 type="button"
                 onClick={goBack}
-                className="group relative mt-5 w-full overflow-hidden rounded-xl border border-emerald-300/30 px-6 py-4 text-base font-semibold tracking-wide text-emerald-50 transition-all hover:border-emerald-300/60 hover:shadow-[0_0_40px_-5px_rgba(50,255,150,0.3)]"
-                style={{
-                  background:
-                    "linear-gradient(135deg, rgba(50,200,100,0.25) 0%, rgba(20,150,80,0.15) 100%)",
-                }}
+                className="waypoint-action waypoint-action-complete"
               >
                 <span className="relative z-10">Return to Mountain</span>
-                <span
-                  className="pointer-events-none absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100"
-                  style={{
-                    background:
-                      "radial-gradient(circle at center, rgba(100,255,180,0.2) 0%, transparent 70%)",
-                  }}
-                />
               </button>
             )}
           </div>
         </section>
       </main>
 
-      {/* feedback popup overlay */}
-      {(feedback || showReview) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-white/15 bg-[#12121a] shadow-2xl animate-in zoom-in-95 duration-300">
-            {/* decoration header */}
-            <div className={`h-2 w-full ${(feedback?.passed ?? alreadyCompleted) ? 'bg-emerald-400' : 'bg-amber-400'}`} />
-            
-            <div className="p-8">
-              <div className="mb-4 flex items-center gap-3">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-full ${(feedback?.passed ?? alreadyCompleted) ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                  {(feedback?.passed ?? alreadyCompleted) ? (
-                    <span className="text-xl font-bold">✓</span>
-                  ) : (
-                    <span className="text-xl font-bold">!</span>
-                  )}
-                </div>
-                <h2 className="text-2xl font-bold tracking-tight">
-                  {(feedback?.passed ?? alreadyCompleted) ? "Great job!" : "Almost there!"}
-                </h2>
-              </div>
-              
-              <p className="mb-8 text-lg leading-relaxed text-white/80 italic">
-                "{feedback?.feedback || "You've completed this challenge successfully!"}"
-              </p>
-              
-              <button
-                type="button"
-                onClick={() => { setFeedback(null); setShowReview(false); }}
-                className="w-full rounded-xl bg-white/10 px-6 py-4 text-sm font-bold uppercase tracking-widest text-white hover:bg-white/20 transition-colors"
-              >
-                {(feedback?.passed ?? alreadyCompleted) ? "Continue climbing" : "I'll try again"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {showReview && !feedback && null}
     </div>
   )
 }
@@ -482,7 +486,7 @@ function FileDrop({ meta, file, onChange, onClear, disabled }: FileDropProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   return (
-    <div className={`rounded-lg border border-dashed border-white/15 bg-black/30 px-4 py-5 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+    <div className={`waypoint-file-drop ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
       <input
         ref={inputRef}
         type="file"
@@ -494,8 +498,8 @@ function FileDrop({ meta, file, onChange, onClear, disabled }: FileDropProps) {
       {file ? (
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="truncate text-sm text-white">{file.name}</p>
-            <p className="text-xs text-white/40">{(file.size / 1024).toFixed(1)} KB</p>
+            <p className="truncate text-sm text-stone-50">{file.name}</p>
+            <p className="text-xs text-stone-200/50">{(file.size / 1024).toFixed(1)} KB</p>
           </div>
           <div className="flex shrink-0 gap-2">
             {!disabled && (
@@ -503,14 +507,14 @@ function FileDrop({ meta, file, onChange, onClear, disabled }: FileDropProps) {
                 <button
                   type="button"
                   onClick={() => inputRef.current?.click()}
-                  className="rounded-md border border-white/15 px-3 py-1.5 text-xs text-white/80 hover:border-white/40 hover:text-white"
+                  className="waypoint-small-button"
                 >
                   Replace
                 </button>
                 <button
                   type="button"
                   onClick={onClear}
-                  className="rounded-md border border-white/10 px-3 py-1.5 text-xs text-white/60 hover:text-white"
+                  className="waypoint-small-button waypoint-small-button-muted"
                 >
                   Remove
                 </button>
@@ -519,16 +523,16 @@ function FileDrop({ meta, file, onChange, onClear, disabled }: FileDropProps) {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-start gap-2">
+        <div className="flex flex-col items-center gap-2 text-center">
           <button
             type="button"
             onClick={() => !disabled && inputRef.current?.click()}
             disabled={disabled}
-            className="inline-flex items-center gap-2 rounded-md border border-amber-300/30 bg-amber-300/10 px-4 py-2 text-sm font-medium text-amber-100 hover:border-amber-300/60 hover:bg-amber-300/15 disabled:cursor-not-allowed"
+            className="waypoint-small-button"
           >
-            <span aria-hidden>＋</span> {meta.cta}
+            {meta.cta}
           </button>
-          <p className="text-xs text-white/40">{meta.hint}</p>
+          <p className="text-xs text-stone-200/52">{meta.hint}</p>
         </div>
       )}
     </div>

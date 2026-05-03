@@ -1,0 +1,150 @@
+{
+  "skill": "i want to start a minecraft server",
+  "estimatedHours": 12,
+  "route": [
+    {
+      "id": 1,
+      "title": "Pick Your Server Type",
+      "summary": "Choose the kind of Minecraft server you want to run first: Vanilla for the normal game, Paper for plugins and better performance, or Modded for custom items and creatures.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Write Vanilla, Paper, or Modded, then explain in 1-2 sentences why that server type is the one you want to start with."
+      },
+      "difficulty": 1,
+      "x": 0.5,
+      "y": 0.92
+    },
+    {
+      "id": 2,
+      "title": "Install Java",
+      "summary": "Minecraft servers run on Java. Install Java 17 or newer so your computer can launch the server file from a terminal or command prompt.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Open your terminal or command prompt, type 'java -version', and upload a screenshot showing Java 17 or newer is installed."
+      },
+      "difficulty": 1,
+      "x": 0.7851863552196594,
+      "y": 0.8436363636363636
+    },
+    {
+      "id": 3,
+      "title": "Make a Server Folder",
+      "summary": "Create one clean folder for your server. This keeps the server .jar, settings, world files, and future plugins from getting mixed into your downloads folder.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Create a folder named 'MyMinecraftServer', put your server .jar file inside it, and upload a screenshot of the folder."
+      },
+      "difficulty": 2,
+      "x": 0.7587188492222688,
+      "y": 0.7672727272727273
+    },
+    {
+      "id": 4,
+      "title": "Run It Once",
+      "summary": "Run the server .jar from inside your server folder. It will create files and stop because you have not accepted the EULA yet. That first stop means the setup is working.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Run 'java -jar server.jar' using your actual file name, then upload a screenshot showing eula.txt and the new server files."
+      },
+      "difficulty": 2,
+      "x": 0.4495213778741604,
+      "y": 0.6909090909090909
+    },
+    {
+      "id": 5,
+      "title": "Accept the EULA",
+      "summary": "Open eula.txt, change eula=false to eula=true, save it, then launch the server again. When the console says Done, your server is live on your computer.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Upload a screenshot showing eula=true and the server console running with a 'Done' message."
+      },
+      "difficulty": 2,
+      "x": 0.1954873363553548,
+      "y": 0.6145454545454545
+    },
+    {
+      "id": 6,
+      "title": "Join with Localhost",
+      "summary": "Open Minecraft, add a server with the address localhost, and join it. This proves the server works before you invite anyone else.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Join your server with localhost, build a 5-block tower, and upload a screenshot showing you are inside the server world."
+      },
+      "difficulty": 2,
+      "x": 0.2742270958174746,
+      "y": 0.5381818181818183
+    },
+    {
+      "id": 7,
+      "title": "Change Server Settings",
+      "summary": "Open server.properties and customize the server. Change simple settings like motd, difficulty, gamemode, max-players, or spawn-protection, then restart the server.",
+      "challenge": {
+        "type": "text",
+        "prompt": "List 3 settings you changed in server.properties and write what each setting does."
+      },
+      "difficulty": 3,
+      "x": 0.5996932363242812,
+      "y": 0.4618181818181819
+    },
+    {
+      "id": 8,
+      "title": "Use Operator Commands",
+      "summary": "Make yourself an operator from the server console so you can use admin commands. Test useful commands like /time set day, /weather clear, /give, and /gamemode.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Use at least 3 operator commands in-game and upload a screenshot showing the commands worked."
+      },
+      "difficulty": 3,
+      "x": 0.8162138348406401,
+      "y": 0.3854545454545455
+    },
+    {
+      "id": 9,
+      "title": "Invite Someone on Your WiFi",
+      "summary": "Find your computer's local IP address and have someone on the same WiFi join with that address. This is the first real multiplayer test.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Write your local IP address format, then explain how someone on your WiFi would use it to join your server."
+      },
+      "difficulty": 3,
+      "x": 0.6871735017253637,
+      "y": 0.3090909090909091
+    },
+    {
+      "id": 10,
+      "title": "Plan Port Forwarding",
+      "summary": "For friends outside your house, your router needs to forward Minecraft traffic on port 25565 to your computer. Router pages differ, so plan the exact steps before touching settings.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Write the router model you would look up, the port number you would forward, and the local IP address the rule would point to."
+      },
+      "difficulty": 4,
+      "x": 0.35358851399189717,
+      "y": 0.23272727272727278
+    },
+    {
+      "id": 11,
+      "title": "Add a Plugin or Mod",
+      "summary": "Install one small plugin or mod, restart the server, and confirm the server loads it. This gives your server a custom feature beyond a plain world.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Upload a screenshot of the plugin or mod file in the right folder and a screenshot of the server console showing it loaded."
+      },
+      "difficulty": 4,
+      "x": 0.18000313390377487,
+      "y": 0.15636363636363648
+    },
+    {
+      "id": 12,
+      "title": "Summit Check",
+      "summary": "Your route is ready for the summit animation test. The server path is complete, and this final tiny challenge exists so the last waypoint can be submitted quickly during the demo.",
+      "challenge": {
+        "type": "text",
+        "prompt": "type abc"
+      },
+      "difficulty": 5,
+      "x": 0.356112811348928,
+      "y": 0.08000000000000007
+    }
+  ]
+}

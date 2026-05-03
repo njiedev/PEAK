@@ -15,6 +15,22 @@ AI-generated interactive learning app for kids, built around a mountain climbing
 - `CLAUDE.md` — rules for AI sessions
 - `<folder>/CLAUDE.md` — per-role context
 
+## Demo cache
+
+Run this before a live demo:
+
+```sh
+npm run demo:seed-cache
+```
+
+That prewarms the exact demo skills listed in `ai/demoSkills.ts` into `ai/cache/`. The summit-animation demo input is:
+
+```txt
+i want to start a minecraft server
+```
+
+That exact route is cached at `ai/cache/i-want-to-start-a-minecraft-server.json`. The frontend treats it as the summit demo route and marks every waypoint complete except the final one, whose challenge is `type abc`, so the last submit can trigger the reaching-the-summit animation predictably.
+
 ## Branches
 
 - `main` — only working code

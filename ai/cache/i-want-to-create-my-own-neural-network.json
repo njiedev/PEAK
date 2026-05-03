@@ -1,0 +1,150 @@
+{
+  "skill": "i want to create my own neural network",
+  "estimatedHours": 18,
+  "route": [
+    {
+      "id": 1,
+      "title": "Build Your First Neuron",
+      "summary": "Create a single artificial neuron that takes two numbers and outputs one number. This is the building block of your neural network.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Write a Python function called 'neuron' that takes two inputs (x1 and x2), multiplies each by a weight (w1=0.5, w2=0.5), adds them together, then returns the result. Test it with neuron(2, 3) and print the answer. Submit your .py file."
+      },
+      "difficulty": 1,
+      "x": 0.5,
+      "y": 0.92
+    },
+    {
+      "id": 2,
+      "title": "Add Activation Power",
+      "summary": "Make your neuron smarter by adding an activation function that decides if it should 'fire' or stay quiet.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Update your neuron function to include a ReLU activation: if the sum is negative, return 0; otherwise return the sum. Test with neuron(-1, 2) and neuron(3, 4). Your neural network file should now have this working activation. Submit your updated .py file."
+      },
+      "difficulty": 2,
+      "x": 0.7851863552196594,
+      "y": 0.8436363636363636
+    },
+    {
+      "id": 3,
+      "title": "Create a Layer of Neurons",
+      "summary": "Build three neurons that work together as a team — your first neural network layer.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Create a function 'layer' that runs three neurons in parallel. Each neuron gets the same two inputs but has different weights (neuron1: w1=0.5,w2=0.3; neuron2: w1=-0.2,w2=0.7; neuron3: w1=0.8,w2=-0.1). Return all three outputs as a list. Test with layer(1, 2) and print the three results. Submit your .py file."
+      },
+      "difficulty": 2,
+      "x": 0.7587188492222688,
+      "y": 0.7672727272727273
+    },
+    {
+      "id": 4,
+      "title": "Stack Two Layers Together",
+      "summary": "Connect your first layer to a second layer, so information flows through multiple steps — this is deep learning.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Add a second layer that takes the three outputs from your first layer as inputs. This layer has just one neuron with weights [0.4, -0.3, 0.6]. Make a function 'network' that runs input through layer 1, then feeds those outputs into layer 2, and returns the final single number. Test with network(1, 2). Submit your .py file showing the complete two-layer network."
+      },
+      "difficulty": 3,
+      "x": 0.4495213778741604,
+      "y": 0.6909090909090909
+    },
+    {
+      "id": 5,
+      "title": "Teach It to Recognize Patterns",
+      "summary": "Give your network training data so it can learn to recognize if two numbers are both positive.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Create a training dataset: four examples with inputs and correct answers. Example: [2,3] should give 1 (both positive), [2,-1] should give 0 (not both positive), [-1,3] should give 0, [-1,-2] should give 0. Add code that runs your network on all four examples and prints both the network's guess and the correct answer for each. Submit your .py file with the dataset and test code."
+      },
+      "difficulty": 2,
+      "x": 0.1954873363553548,
+      "y": 0.6145454545454545
+    },
+    {
+      "id": 6,
+      "title": "Measure How Wrong It Is",
+      "summary": "Build a loss function that calculates how far off your network's guesses are from the right answers.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Write a function 'calculate_loss' that takes the network's output and the correct answer, finds the difference, squares it, and returns that error value. Run your network on all four training examples, calculate the loss for each, add them up, and print the total loss. Submit your .py file showing the loss calculation working."
+      },
+      "difficulty": 3,
+      "x": 0.2742270958174746,
+      "y": 0.5381818181818183
+    },
+    {
+      "id": 7,
+      "title": "Make One Weight Learn",
+      "summary": "Implement gradient descent for a single weight — your network's first step toward learning.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Pick one weight in your network (like the first weight in layer 1, neuron 1). Try it at three values: current value, current+0.1, current-0.1. Calculate total loss for each. Update the weight to whichever value gave the lowest loss. Print 'before weight', 'after weight', 'before loss', 'after loss'. Submit your .py file showing this learning step working."
+      },
+      "difficulty": 3,
+      "x": 0.5996932363242812,
+      "y": 0.4618181818181819
+    },
+    {
+      "id": 8,
+      "title": "Train All Weights Together",
+      "summary": "Expand your learning code to update every weight in your network, making the whole thing smarter.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Create a training loop that runs 100 times. Each loop: test small changes to every weight, pick the changes that reduce loss, update all weights. Print the loss every 10 loops so you can see it going down. After 100 loops, test your network on the four examples again and print the outputs. Submit your .py file with the complete training loop."
+      },
+      "difficulty": 4,
+      "x": 0.8162138348406401,
+      "y": 0.3854545454545455
+    },
+    {
+      "id": 9,
+      "title": "Test on New Data",
+      "summary": "See if your trained network can correctly handle examples it has never seen before.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Create two new test examples your network hasn't trained on: [5,7] (should output close to 1) and [4,-3] (should output close to 0). Run your trained network on both and print the outputs. Add a comment explaining if it got them right or wrong. Submit your .py file with the test results."
+      },
+      "difficulty": 2,
+      "x": 0.6871735017253637,
+      "y": 0.3090909090909091
+    },
+    {
+      "id": 10,
+      "title": "Visualize the Learning Process",
+      "summary": "Create a graph showing how your network got smarter over time by plotting the loss going down.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Modify your training loop to save the loss value every 10 loops into a list. After training finishes, use matplotlib or draw by hand on graph paper: x-axis is loop number (0, 10, 20...100), y-axis is loss value. Plot the points and connect them with a line. The line should go down, showing learning happened. Take a photo of your graph or screenshot of the matplotlib output and submit it."
+      },
+      "difficulty": 3,
+      "x": 0.35358851399189717,
+      "y": 0.23272727272727278
+    },
+    {
+      "id": 11,
+      "title": "Teach It a Harder Pattern",
+      "summary": "Train your network to solve XOR — a pattern that requires both layers working together.",
+      "challenge": {
+        "type": "code",
+        "prompt": "Change your training data to XOR: [0,0] gives 0, [0,1] gives 1, [1,0] gives 1, [1,1] gives 0. This pattern is 'different numbers give 1, same numbers give 0'. Retrain your network from scratch for 500 loops. Print the final outputs for all four examples. Submit your .py file showing your network learning XOR."
+      },
+      "difficulty": 4,
+      "x": 0.18000313390377487,
+      "y": 0.15636363636363648
+    },
+    {
+      "id": 12,
+      "title": "Document Your Neural Network",
+      "summary": "Create a complete guide explaining your neural network: how it works, what it learned, and how someone else could use it.",
+      "challenge": {
+        "type": "pdf",
+        "prompt": "Make a 3-4 page document with: (1) A diagram of your network showing the layers and neurons, (2) The XOR training data and what pattern it learned, (3) A screenshot of your code running and getting XOR right, (4) Your loss graph showing it learned, (5) An explanation in your own words of how a neural network learns by adjusting weights. Export or save as PDF and submit."
+      },
+      "difficulty": 5,
+      "x": 0.356112811348928,
+      "y": 0.08000000000000007
+    }
+  ]
+}
