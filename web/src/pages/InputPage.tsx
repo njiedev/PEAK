@@ -1,12 +1,15 @@
-import SkillInput from "../components/SkillInput"
+import SkillInput from "../components/SkillInput";
 import StarField from "../components/Starfield";
+import Title from "../components/Title";
 
 function InputPage() {
     return (
         <>
         <div className="relative flex flex-col w-full h-screen bg-black overflow-hidden items-center justify-center gap-5">
             <StarField></StarField>
-            <h1 className='text-9xl font-bold text-white'>PEAK</h1>
+            <div>
+                <Title></Title>
+            </div>
             <p
             className="text-white"
             >this is what peak is about</p>
