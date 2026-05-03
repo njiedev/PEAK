@@ -21,6 +21,7 @@ const bodySchema = z.object({
   submission: z.object({
     text: z.string().optional(),
     imageBase64: z.string().optional(),
+    imageMime: z.string().optional(),
     fileBase64: z.string().optional(),
     fileName: z.string().optional(),
     fileMime: z.string().optional(),
@@ -42,9 +43,9 @@ router.post('/', async (req: Request, res: Response) => {
     return
   }
 
-  // Bridge HTTP body to Mohammed's Submission type: string | { imageBase64: string }
+  // Bridge HTTP body to Mohammed's Submission type: string | { imageBase64: string, imageMime?: string }
   const aiSubmission = submission.imageBase64
-    ? { imageBase64: submission.imageBase64 }
+    ? { imageBase64: submission.imageBase64, imageMime: submission.imageMime }
     : submission.text!
 
   try {

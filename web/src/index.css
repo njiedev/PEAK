@@ -235,13 +235,31 @@
 }
 
 @keyframes detail-zoom-in {
-  from { transform: scale(1); }
-  to   { transform: scale(3.6); }
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(calc(22vw - var(--focus-x) * 100vw), calc(55vh - var(--focus-y) * 100vh)) scale(3.6);
+  }
+}
+
+@keyframes detail-zoom-out {
+  from {
+    transform: translate(calc(22vw - var(--focus-x) * 100vw), calc(55vh - var(--focus-y) * 100vh)) scale(3.6);
+  }
+  to {
+    transform: translate(0, 0) scale(1);
+  }
 }
 
 @keyframes detail-darken-in {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+
+@keyframes detail-darken-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
 
 @keyframes detail-content-in {
@@ -255,18 +273,50 @@
   }
 }
 
+@keyframes detail-content-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+}
+
 .detail-zoom-stage {
   animation: detail-zoom-in 1.4s cubic-bezier(0.6, 0.05, 0.2, 1) both;
   will-change: transform;
+}
+
+.detail-zoom-stage.exiting {
+  animation: detail-zoom-out 1.2s cubic-bezier(0.6, 0.05, 0.2, 1) both;
 }
 
 .detail-darken {
   animation: detail-darken-in 0.8s ease-out 1.0s both;
 }
 
+.detail-darken.exiting {
+  animation: detail-darken-out 0.6s ease-in both;
+}
+
 .detail-content-in {
   animation: detail-content-in 0.6s ease-out 1.35s both;
   will-change: transform, opacity;
+}
+
+.detail-content-in.exiting {
+  animation: detail-content-out 0.4s ease-in both;
+}
+
+@keyframes detail-waypoint-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+.detail-waypoint-fade-out {
+  animation: detail-waypoint-fade-out 0.6s ease-out 0.2s both;
 }
 
 /* ---------- Campfire waypoint ---------- */
