@@ -1,5 +1,9 @@
 export const DEMO_SKILLS = [
   'i want to start a minecraft server',
+  'i want to start my own minecraft server',
+  'i want to learn how to start a minecraft server',
+  'i want to learn how to start my own minecraft server',
+  'i want to learn how to host my own minecraft server',
 ] as const
 
 export type DemoSkill = (typeof DEMO_SKILLS)[number]
