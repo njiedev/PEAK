@@ -1,7 +1,7 @@
 // PEAK — shared JSON contract between AI, backend, and frontend.
 // DO NOT change this without team agreement on voice call.
 
-export type ChallengeType = 'text' | 'photo'
+export type ChallengeType = 'text' | 'photo' | 'code' | 'pdf'
 
 export type Challenge = {
   type: ChallengeType

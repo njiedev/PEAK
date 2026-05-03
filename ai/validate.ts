@@ -5,7 +5,7 @@ import type { Route, Feedback } from '../shared/schema'
 // Mirrors shared/schema.ts. If that file changes, change this in the same commit.
 
 const ChallengeSchema = z.object({
-  type: z.union([z.literal('text'), z.literal('photo')]),
+  type: z.union([z.literal('text'), z.literal('photo'), z.literal('code'), z.literal('pdf')]),
   prompt: z.string().min(1),
 })
 
