@@ -18,7 +18,7 @@ function SkillInput() {
      onKeyDown={(e) => {
         if (e.key === "Enter") handleSubmit()
      }}
-     className=" text-white w-full outline-none" />
+     className="flex-1 min-w-0 bg-transparent text-white outline-none" />
      <button 
      onClick={handleSubmit} 
      className="rounded-full w-8 h-8 bg-gray-500 text-sm items-center justify-center text-white">
