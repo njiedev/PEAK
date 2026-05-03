@@ -11,7 +11,7 @@ const bodySchema = z.object({
     title: z.string(),
     summary: z.string(),
     challenge: z.object({
-      type: z.enum(['text', 'photo']),
+      type: z.enum(['text', 'photo', 'code', 'pdf']),
       prompt: z.string(),
     }),
     difficulty: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]),
@@ -21,6 +21,9 @@ const bodySchema = z.object({
   submission: z.object({
     text: z.string().optional(),
     imageBase64: z.string().optional(),
+    fileBase64: z.string().optional(),
+    fileName: z.string().optional(),
+    fileMime: z.string().optional(),
   }),
 })
 
