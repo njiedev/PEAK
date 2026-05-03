@@ -139,8 +139,8 @@
       "title": "Summit Check",
       "summary": "Your route is ready for the summit animation test. The server path is complete, and this final tiny challenge exists so the last waypoint can be submitted quickly during the demo.",
       "challenge": {
-        "type": "text",
-        "prompt": "type abc"
+        "type": "photo",
+        "prompt": "send a picture of your completed minecraft server online and working!"
       },
       "difficulty": 5,
       "x": 0.356112811348928,

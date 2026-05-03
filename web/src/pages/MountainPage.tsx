@@ -20,7 +20,13 @@ type MountainPageProps = {
 }
 
 const REVEAL_DURATION_MS = 7200
-const SUMMIT_DEMO_SKILL = "i want to start a minecraft server"
+const SUMMIT_DEMO_SKILLS = [
+    "i want to start a minecraft server",
+    "i want to start my own minecraft server",
+    "i want to learn how to start a minecraft server",
+    "i want to learn how to start my own minecraft server",
+    "i want to learn how to host my own minecraft server",
+]
 const LOGIN_STREAK_STORAGE_KEY = "peak_login_streak"
 const JOURNEY_STATS_STORAGE_KEY_PREFIX = "peak_journey_stats"
 const ENDGAME_SEEN_STORAGE_KEY_PREFIX = "peak_endgame_seen"
@@ -128,6 +134,14 @@ function formatDuration(ms: number | null): string {
 
 function routeStorageScope(value: string): string {
     return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "default"
+}
+
+function normalizeDemoSkill(value: string): string {
+    return value.trim().toLowerCase().replace(/\s+/g, " ")
+}
+
+function isSummitDemoSkill(value: string): boolean {
+    return SUMMIT_DEMO_SKILLS.includes(normalizeDemoSkill(value))
 }
 
 const ENDGAME_SIMULATOR_ROUTE: Route = {
@@ -286,7 +300,15 @@ function MountainPage({ simulateEndgame = false }: MountainPageProps) {
 
     useEffect(() => {
         if (!route) return
-        if (route.skill.trim().toLowerCase() !== SUMMIT_DEMO_SKILL) return
+        if (!isSummitDemoSkill(route.skill)) return
+
+        const scope = routeStorageScope(route.skill)
+        window.localStorage.removeItem(endgameSeenKey(scope))
+        window.localStorage.setItem(journeyStatsKey(scope), JSON.stringify({
+            totalAttempts: 11,
+            longestTaskMs: 11 * 60 * 1000 + 38 * 1000,
+            shortestTaskMs: 52 * 1000,
+        }))
         setCompleted(route.route.slice(0, -1).map((waypoint) => waypoint.id))
     }, [route, setCompleted])
 

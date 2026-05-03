@@ -1,0 +1,150 @@
+{
+  "skill": "how do i build a robot?",
+  "estimatedHours": 18,
+  "route": [
+    {
+      "id": 1,
+      "title": "Design Your Robot on Paper",
+      "summary": "Draw what your robot will look like and what it will do. Will it have wheels? Arms? Lights? Pick one simple action it can perform (like moving forward or spinning). This is your blueprint.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Draw your robot design on paper. Label at least 3 parts (like wheels, body, or sensors). Take a clear photo of your drawing and upload it."
+      },
+      "difficulty": 1,
+      "x": 0.5,
+      "y": 0.92
+    },
+    {
+      "id": 2,
+      "title": "Build the Robot Body",
+      "summary": "Use cardboard, a plastic container, or LEGO to build the main body of your robot. It doesn't need to move yet — just build the frame based on your drawing. Make it sturdy enough to hold parts later.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Build your robot's body out of cardboard, a box, LEGO, or any materials you have. Take a photo showing the body from the front and side. Upload it."
+      },
+      "difficulty": 2,
+      "x": 0.7851863552196594,
+      "y": 0.8436363636363636
+    },
+    {
+      "id": 3,
+      "title": "Add Wheels or Legs",
+      "summary": "Give your robot a way to move. Attach wheels (bottle caps, toy wheels, or cardboard circles) or legs (popsicle sticks, straws). They don't need to spin yet — just attach them to the body so it can stand or roll.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Attach wheels or legs to your robot body. Take a photo showing your robot standing or ready to roll. Upload it."
+      },
+      "difficulty": 2,
+      "x": 0.7587188492222688,
+      "y": 0.7672727272727273
+    },
+    {
+      "id": 4,
+      "title": "Make It Move with a Motor",
+      "summary": "Add a small motor to make your robot move. You can use a battery-powered toy motor, a vibrating motor from an old phone, or even a rubber band wind-up mechanism. Connect it to one wheel or attach it to the body so it vibrates forward.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Add a motor or wind-up mechanism to your robot. Take a photo showing the motor attached to the robot and upload it."
+      },
+      "difficulty": 3,
+      "x": 0.4495213778741604,
+      "y": 0.6909090909090909
+    },
+    {
+      "id": 5,
+      "title": "Add a Power Source",
+      "summary": "Connect a battery pack or batteries to power your motor. Use tape or a battery holder to attach it to the robot body. Make sure the wires touch the motor terminals so it spins when you turn it on.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Attach batteries or a battery pack to your robot and connect them to the motor. Take a photo showing the battery and wires clearly attached. Upload it."
+      },
+      "difficulty": 3,
+      "x": 0.1954873363553548,
+      "y": 0.6145454545454545
+    },
+    {
+      "id": 6,
+      "title": "Add an On/Off Switch",
+      "summary": "Give your robot a way to turn on and off without pulling out the battery. You can use a real switch from a hardware store, a paperclip that connects two wires, or a clothespin that pinches wires together. Wire it between the battery and motor.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Add a switch to your robot so you can turn the motor on and off. Take a photo showing the switch clearly attached to your robot. Upload it."
+      },
+      "difficulty": 3,
+      "x": 0.2742270958174746,
+      "y": 0.5381818181818183
+    },
+    {
+      "id": 7,
+      "title": "Add Eyes or Lights",
+      "summary": "Make your robot look more alive by adding LED lights for eyes or decoration. Connect small LEDs to the battery (use a resistor if you have one, or just test it briefly). Tape them to the front of the robot body.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Add at least one LED light to your robot (as eyes or decoration). Take a photo with the light turned on. Upload it."
+      },
+      "difficulty": 2,
+      "x": 0.5996932363242812,
+      "y": 0.4618181818181819
+    },
+    {
+      "id": 8,
+      "title": "Add a Sensor or Input",
+      "summary": "Give your robot a way to sense the world. Add a simple sensor like a touch sensor (a button or aluminum foil switch), a light sensor (a photoresistor), or even just a bumper (a bent paperclip that touches a wire when it hits something). Wire it so it affects the motor or light.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Add a sensor or button to your robot. Write 3-4 sentences explaining what sensor you added and what it does (like when I press the button, the motor stops). Be specific about how it works."
+      },
+      "difficulty": 4,
+      "x": 0.8162138348406401,
+      "y": 0.3854545454545455
+    },
+    {
+      "id": 9,
+      "title": "Decorate Your Robot",
+      "summary": "Make your robot look cool. Add paint, markers, stickers, googly eyes, aluminum foil armor, pipe cleaners, or anything else. This is where your robot gets personality. Refer back to your original drawing and add details you planned.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Decorate your robot with paint, markers, stickers, or other materials. Take a photo of the finished decorated robot. Upload it."
+      },
+      "difficulty": 2,
+      "x": 0.6871735017253637,
+      "y": 0.3090909090909091
+    },
+    {
+      "id": 10,
+      "title": "Test and Fix Your Robot",
+      "summary": "Turn on your robot and watch it go. Does it move straight? Do the lights work? Does the sensor respond? If something doesn't work, check your wires, tape down loose parts, or adjust the wheels. Make at least one improvement based on testing.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Test your robot. Write 3-5 sentences describing what worked, what didn't work, and one thing you fixed or improved. Be specific (like the left wheel was loose so I taped it tighter)."
+      },
+      "difficulty": 3,
+      "x": 0.35358851399189717,
+      "y": 0.23272727272727278
+    },
+    {
+      "id": 11,
+      "title": "Record a Robot Demo",
+      "summary": "Show off your finished robot in action. Take a photo or series of photos showing it moving, lights blinking, and any sensors working. Capture your robot doing what it was designed to do. This is your proof that you built a real working robot.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a photo of your robot in action. Show it moving, lights working, or sensor activated. Upload the best action shot of your working robot."
+      },
+      "difficulty": 4,
+      "x": 0.18000313390377487,
+      "y": 0.15636363636363648
+    },
+    {
+      "id": 12,
+      "title": "Write Your Robot Manual",
+      "summary": "Create a 1-page instruction guide for your robot. Include a photo, a list of materials you used, how to turn it on, and what it does. Imagine you're teaching someone else to understand or build their own version.",
+      "challenge": {
+        "type": "pdf",
+        "prompt": "Create a 1-page robot manual. Include: a photo of your robot, a materials list, instructions for turning it on, and a description of what it does. Export or photograph it as a PDF and upload."
+      },
+      "difficulty": 4,
+      "x": 0.356112811348928,
+      "y": 0.08000000000000007
+    }
+  ]
+}

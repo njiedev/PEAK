@@ -139,8 +139,8 @@
       "title": "Build a Spawn Area for Your Server",
       "summary": "Create a cool spawn point where players first appear. Make it welcoming with signs explaining rules, a starter chest with basic items, and some buildings or decorations. Use /setworldspawn to set the exact spot.",
       "challenge": {
-        "type": "photo",
-        "prompt": "Build a spawn area with at least: 3 signs with rules or welcome messages, 1 chest with starter items, and 1 structure (like a fountain, tower, or building). Use /setworldspawn to set it. Take a screenshot of your finished spawn area."
+        "type": "text",
+        "prompt": "Type 'summit' to finish the climb and show your completed Minecraft server journey."
       },
       "difficulty": 4,
       "x": 0.356112811348928,
