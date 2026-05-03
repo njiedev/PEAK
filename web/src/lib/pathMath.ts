@@ -1,14 +1,15 @@
-// Hand-tuned positions traced along the visible climbing route on
-// `mountain.png`. Values are 0-1 normalized to the image.
+// Switchback route up mountain2.png. y is evenly spaced (~0.09 per step)
+// so campfires don't clump near the top. x swings wide, using the right
+// shoulder of the mountain (up to 0.72), narrowing naturally to the peak.
 export const PATH_POSITIONS: { x: number; y: number }[] = [
-    { x: 0.16, y: 0.88 },
-    { x: 0.27, y: 0.74 },
-    { x: 0.36, y: 0.62 },
-    { x: 0.44, y: 0.50 },
-    { x: 0.50, y: 0.40 },
-    { x: 0.58, y: 0.30 },
-    { x: 0.55, y: 0.20 },
-    { x: 0.52, y: 0.10 },
+    { x: 0.18, y: 0.83 },
+    { x: 0.72, y: 0.74 },
+    { x: 0.26, y: 0.64 },
+    { x: 0.68, y: 0.55 },
+    { x: 0.35, y: 0.46 },
+    { x: 0.59, y: 0.37 },
+    { x: 0.44, y: 0.27 },
+    { x: 0.50, y: 0.18 },
 ]
 
 export function pickPosition(index: number, total: number) {

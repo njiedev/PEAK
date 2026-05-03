@@ -234,6 +234,71 @@
   animation: mountain-horizon-in 2.5s ease-in-out both;
 }
 
+/* ---------- Mountain reveal (loading → peak → wide) ---------- */
+
+@keyframes mountain-reveal-overlay {
+  0%   { opacity: 1; }
+  18%  { opacity: 1; }
+  58%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes mountain-reveal-zoom {
+  0%, 18% {
+    transform: translate(calc(50vw - var(--peak-x, 0.5) * 100vw), calc(50vh - var(--peak-y, 0.18) * 100vh + 14vh)) scale(3.6);
+  }
+  46%, 58% {
+    transform: translate(calc(50vw - var(--peak-x, 0.5) * 100vw), calc(50vh - var(--peak-y, 0.18) * 100vh)) scale(3);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes mountain-reveal-title {
+  0%, 22%   { opacity: 0; transform: translate(-50%, calc(-50% + 14px)); }
+  38%, 58%  { opacity: 1; transform: translate(-50%, -50%); }
+  72%, 100% { opacity: 0; transform: translate(-50%, calc(-50% - 10px)); }
+}
+
+@keyframes mountain-reveal-chrome {
+  0%, 70% { opacity: 0; }
+  100%    { opacity: 1; }
+}
+
+.mountain-reveal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: black;
+  pointer-events: none;
+  animation: mountain-reveal-overlay 4.8s cubic-bezier(0.45, 0, 0.2, 1) both;
+  will-change: opacity;
+}
+
+.mountain-reveal-stage {
+  animation: mountain-reveal-zoom 4.8s cubic-bezier(0.4, 0, 0.15, 1) both;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.mountain-reveal-title {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 28;
+  text-align: center;
+  pointer-events: none;
+  color: white;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
+  animation: mountain-reveal-title 4.8s ease-in-out both;
+  will-change: transform, opacity;
+}
+
+.mountain-reveal-chrome {
+  animation: mountain-reveal-chrome 4.8s ease-out both;
+}
+
 @keyframes detail-zoom-in {
   from {
     transform: translate(0, 0) scale(1);

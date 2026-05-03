@@ -25,7 +25,7 @@ function InputPage() {
         const routeRequest = generateRoute(skill)
         Promise.all([routeRequest, wait(PAN_DURATION_MS)])
             .then(([route]) => {
-                navigate("/mountain", { state: { skill, route } })
+                navigate("/mountain", { state: { skill, route, reveal: true } })
             })
             .catch((err: unknown) => {
                 console.error("[start] route generation failed", err)
