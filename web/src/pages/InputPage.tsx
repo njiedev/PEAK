@@ -1,15 +1,7 @@
 import SkillInput from "../components/SkillInput"
 import StarField from "../components/Starfield";
-import Star from "../components/Starfield";
-import { useEffect, useState } from "react"
-
-
-
-
 
 function InputPage() {
-
-
     return (
         <>
         <div className="relative w-full h-screen bg-black overflow-hidden flex items-center justify-center">

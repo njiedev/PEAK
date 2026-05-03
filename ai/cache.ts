@@ -43,9 +43,17 @@ async function writeCache(skill: string, route: Route): Promise<void> {
 }
 
 export async function generateRouteCached(skill: string): Promise<Route> {
+  console.log('[ai-cache] route requested', { skill })
   const cached = await readCache(skill)
-  if (cached) return cached
+  if (cached) {
+    console.log('[ai-cache] cache hit', { skill, waypoints: cached.route.length })
+    return cached
+  }
+
+  console.log('[ai-cache] cache miss, calling Claude', { skill })
   const fresh = await generateRoute(skill)
+  console.log('[ai-cache] Claude route generated', { skill, waypoints: fresh.route.length })
   await writeCache(skill, fresh)
+  console.log('[ai-cache] route cached', { skill })
   return fresh
 }

@@ -1,0 +1,150 @@
+{
+  "skill": "i want to learn how to start my own minecraft server",
+  "estimatedHours": 12,
+  "route": [
+    {
+      "id": 1,
+      "title": "Pick Your Server Type",
+      "summary": "Decide if you want Java Edition or Bedrock Edition. Java works on computers, Bedrock works on phones and consoles. Most people use Java because it has more options.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Write which version you picked (Java or Bedrock) and explain in 2 sentences why you chose it."
+      },
+      "difficulty": 1,
+      "x": 0.5,
+      "y": 0.92
+    },
+    {
+      "id": 2,
+      "title": "Download and Install Server Software",
+      "summary": "Go to minecraft.net/download/server and download the server.jar file. Put it in a new folder called 'MinecraftServer' on your desktop. You need Java installed on your computer first.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a screenshot showing the server.jar file sitting in your MinecraftServer folder."
+      },
+      "difficulty": 1,
+      "x": 0.7851863552196594,
+      "y": 0.8436363636363636
+    },
+    {
+      "id": 3,
+      "title": "Start Your Server for the First Time",
+      "summary": "Double-click the server.jar file. It will create some files and stop. Find the file called eula.txt, open it, and change 'eula=false' to 'eula=true'. This means you agree to Minecraft's rules. Run server.jar again.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a screenshot of your server running. The window should say 'Done' and show it's ready for players."
+      },
+      "difficulty": 2,
+      "x": 0.7587188492222688,
+      "y": 0.7672727272727273
+    },
+    {
+      "id": 4,
+      "title": "Join Your Own Server",
+      "summary": "Open Minecraft on your computer. Click Multiplayer, then Add Server. For the address type 'localhost'. Connect and walk around. You're on your own server!",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a screenshot of yourself standing in your server world. Make sure we can see your username in the game."
+      },
+      "difficulty": 2,
+      "x": 0.4495213778741604,
+      "y": 0.6909090909090909
+    },
+    {
+      "id": 5,
+      "title": "Change Basic Server Settings",
+      "summary": "Stop your server. Open server.properties with a text editor. Change gamemode to 'creative', difficulty to 'easy', and max-players to '5'. Save it and restart your server.",
+      "challenge": {
+        "type": "text",
+        "prompt": "List 3 settings you changed and explain what each one does in your own words."
+      },
+      "difficulty": 2,
+      "x": 0.1954873363553548,
+      "y": 0.6145454545454545
+    },
+    {
+      "id": 6,
+      "title": "Make Yourself an Operator",
+      "summary": "Operators (ops) have special powers like switching game modes and using commands. While your server is running, type 'op YourUsername' in the server window. Replace YourUsername with your actual Minecraft name.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a screenshot showing you used a command in your server like /gamemode creative or /time set day. The chat should show the command worked."
+      },
+      "difficulty": 2,
+      "x": 0.2742270958174746,
+      "y": 0.5381818181818183
+    },
+    {
+      "id": 7,
+      "title": "Let a Friend Join Over Your Local Network",
+      "summary": "Find your computer's IP address. On Windows type 'ipconfig' in Command Prompt and look for IPv4 Address. Give this number to a friend on the same WiFi. They add your server using that IP address and port 25565.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a screenshot of the server console showing a second player joining your server. It should say their username logged in."
+      },
+      "difficulty": 3,
+      "x": 0.5996932363242812,
+      "y": 0.4618181818181819
+    },
+    {
+      "id": 8,
+      "title": "Build a Spawn Area",
+      "summary": "The spawn is where players appear when they join. Build a simple welcome area with signs explaining your server rules. Include at least 3 signs and make it look inviting with blocks and decorations.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a screenshot of your finished spawn area showing your welcome signs and decorations."
+      },
+      "difficulty": 3,
+      "x": 0.8162138348406401,
+      "y": 0.3854545454545455
+    },
+    {
+      "id": 9,
+      "title": "Install Your First Plugin or Mod",
+      "summary": "Plugins add new features. Download Paper or Spigot (special server software that allows plugins). Install it, then add a simple plugin like EssentialsX that adds useful commands. Put the plugin .jar file in the plugins folder.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a screenshot showing a new plugin command working, like /spawn or /sethome. The chat should show the command did something."
+      },
+      "difficulty": 4,
+      "x": 0.6871735017253637,
+      "y": 0.3090909090909091
+    },
+    {
+      "id": 10,
+      "title": "Set Up Port Forwarding for Internet Access",
+      "summary": "Port forwarding lets people outside your house join. Log into your router (usually 192.168.1.1), find port forwarding settings, and forward port 25565 to your computer's local IP. This is tricky and you might need an adult's help.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Explain what port forwarding does in 2-3 sentences like you're teaching a friend. Then write whether you got it working or what problem you ran into."
+      },
+      "difficulty": 4,
+      "x": 0.35358851399189717,
+      "y": 0.23272727272727278
+    },
+    {
+      "id": 11,
+      "title": "Create a Backup System",
+      "summary": "Servers can crash or get griefed. Stop your server and copy your entire 'world' folder to a safe place. Name it with today's date like 'world_backup_2025_01_15'. Do this every few days to save your progress.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a screenshot showing at least 2 backup folders with different dates in their names."
+      },
+      "difficulty": 3,
+      "x": 0.18000313390377487,
+      "y": 0.15636363636363648
+    },
+    {
+      "id": 12,
+      "title": "Host a Server Event",
+      "summary": "Plan and run a mini-event on your server. It could be a building competition, a treasure hunt with hidden chests, or a parkour challenge. Invite at least one friend and guide them through it.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Describe your event: what players had to do, what the prize was, and one fun or unexpected thing that happened during it."
+      },
+      "difficulty": 5,
+      "x": 0.356112811348928,
+      "y": 0.08000000000000007
+    }
+  ]
+}

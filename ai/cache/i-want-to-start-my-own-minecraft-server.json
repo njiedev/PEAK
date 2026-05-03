@@ -1,0 +1,150 @@
+{
+  "skill": "i want to start my own minecraft server",
+  "estimatedHours": 18,
+  "route": [
+    {
+      "id": 1,
+      "title": "Test Your Computer's Power",
+      "summary": "Before you run a server, you need to know if your computer can handle it. Check how much RAM (memory) you have and take a screenshot showing it's at least 4GB.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a screenshot of your computer's system information showing how much RAM you have. On Windows, search 'About your PC.' On Mac, click the Apple menu then 'About This Mac.'"
+      },
+      "difficulty": 1,
+      "x": 0.5,
+      "y": 0.92
+    },
+    {
+      "id": 2,
+      "title": "Download and Launch a Basic Server",
+      "summary": "Get the official Minecraft server file from Mojang, put it in its own folder, and run it once. It will fail the first time—that's normal! You need to agree to the EULA (the rules for using it).",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a screenshot showing your server folder with these files inside: the server.jar file, eula.txt (which you changed to say 'eula=true'), and the server starting up in a command window or terminal."
+      },
+      "difficulty": 2,
+      "x": 0.7851863552196594,
+      "y": 0.8436363636363636
+    },
+    {
+      "id": 3,
+      "title": "Connect to Your Own Server",
+      "summary": "Start your server, then open Minecraft and connect to 'localhost'. Walk around, break a block, place a block. You're playing on YOUR server now!",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a screenshot of you connected to your server (it should say 'localhost' or '127.0.0.1' in the server address) AND show you've built a simple 3-block tower or changed something in the world."
+      },
+      "difficulty": 1,
+      "x": 0.7587188492222688,
+      "y": 0.7672727272727273
+    },
+    {
+      "id": 4,
+      "title": "Customize Your Server Settings",
+      "summary": "Open the server.properties file in a text editor. Change at least 3 settings—like the message players see (motd), game mode, difficulty, or max players. Restart the server to make them work.",
+      "challenge": {
+        "type": "text",
+        "prompt": "List the 3 settings you changed, what you changed them FROM and TO, and explain in one sentence why you picked each change. Example: 'I changed max-players from 20 to 5 because I only want to play with my close friends.'"
+      },
+      "difficulty": 2,
+      "x": 0.4495213778741604,
+      "y": 0.6909090909090909
+    },
+    {
+      "id": 5,
+      "title": "Give Yourself OP Powers",
+      "summary": "OP means 'operator'—basically admin powers. Use the server console to make yourself an operator so you can use commands like /gamemode and /give.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a screenshot showing you used a command that only OPs can use. Type '/give @s diamond 10' in the game chat to give yourself 10 diamonds, and show the diamonds appearing in your inventory."
+      },
+      "difficulty": 2,
+      "x": 0.1954873363553548,
+      "y": 0.6145454545454545
+    },
+    {
+      "id": 6,
+      "title": "Let a Friend Join Over Your Home Network",
+      "summary": "Find your computer's local IP address (something like 192.168.1.5). Have someone else in your house connect to your server using that IP address instead of localhost.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Write down your local IP address and describe what happened when your friend or family member tried to join. Did it work? If not, what error did they see? If yes, what did you both do together in the game?"
+      },
+      "difficulty": 3,
+      "x": 0.2742270958174746,
+      "y": 0.5381818181818183
+    },
+    {
+      "id": 7,
+      "title": "Install Your First Plugin",
+      "summary": "Switch your server to Paper (a modified server that allows plugins). Download a simple plugin like EssentialsX and put it in the plugins folder. Restart and test one of its commands like /spawn or /warp.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a screenshot of your plugins folder showing the plugin file you installed, AND a screenshot in-game showing you successfully used a command from that plugin (like setting a spawn point or creating a warp)."
+      },
+      "difficulty": 3,
+      "x": 0.5996932363242812,
+      "y": 0.4618181818181819
+    },
+    {
+      "id": 8,
+      "title": "Set Up a Spawn Area",
+      "summary": "Build a small spawn area where new players appear—it could be a platform, a welcome sign, and a chest with starter items. Use /setworldspawn to make everyone appear there.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a screenshot of your spawn area from a distance showing what you built, and another screenshot showing the coordinates when you stand on the spawn point (F3 on PC shows coordinates)."
+      },
+      "difficulty": 3,
+      "x": 0.8162138348406401,
+      "y": 0.3854545454545455
+    },
+    {
+      "id": 9,
+      "title": "Create Server Rules and Ranks",
+      "summary": "Write 3-5 rules for your server (no griefing, no stealing, etc). Use a permissions plugin like LuckPerms to create two ranks: 'member' and 'trusted' with different permissions.",
+      "challenge": {
+        "type": "text",
+        "prompt": "List your server rules and explain what the difference is between your 'member' and 'trusted' ranks. What can trusted players do that members can't? Why did you choose those permissions?"
+      },
+      "difficulty": 4,
+      "x": 0.6871735017253637,
+      "y": 0.3090909090909091
+    },
+    {
+      "id": 10,
+      "title": "Make Your Server Accessible From the Internet",
+      "summary": "Set up port forwarding on your router so people outside your house can join. You need to forward port 25565 to your computer's local IP. This is tricky and you might need a parent's help.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Describe the steps you took to set up port forwarding. Include your router brand, which settings page you used, and whether it worked. If you couldn't do it, explain what stopped you (some routers or internet providers block this)."
+      },
+      "difficulty": 4,
+      "x": 0.35358851399189717,
+      "y": 0.23272727272727278
+    },
+    {
+      "id": 11,
+      "title": "Set Up Automated Backups",
+      "summary": "Servers can crash or get griefed. Create a system to automatically back up your world folder. You could use a backup plugin or write a simple script that copies the world folder every day.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a screenshot showing at least 2 backup copies of your world folder with different dates or times in the folder names (like 'world_backup_jan15' and 'world_backup_jan16'), or show a backup plugin's settings page."
+      },
+      "difficulty": 4,
+      "x": 0.18000313390377487,
+      "y": 0.15636363636363648
+    },
+    {
+      "id": 12,
+      "title": "Launch Week: Run a Mini-Event",
+      "summary": "Host your server for at least 3 real players for a 2-hour session. Plan one organized activity—a build competition, treasure hunt, PvP tournament, or parkour challenge. Award prizes using /give commands.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Write a summary of your launch event. Who joined? What activity did you run? What went well and what was harder than expected? What's one thing you'll do differently next time you host?"
+      },
+      "difficulty": 5,
+      "x": 0.356112811348928,
+      "y": 0.08000000000000007
+    }
+  ]
+}
