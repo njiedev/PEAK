@@ -10,15 +10,17 @@ const TEMPERATURE = 0.5
 
 const client = new Anthropic()
 
-export type Submission = string | { imageBase64: string }
+export type Submission = string | { imageBase64: string; imageMime?: string }
 
 type TextBlock = { type: 'text'; text: string }
 type ImageBlock = {
   type: 'image'
-  source: { type: 'base64'; media_type: 'image/jpeg' | 'image/png'; data: string }
+  source: { type: 'base64'; media_type: 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif'; data: string }
 }
 type Content = string | Array<TextBlock | ImageBlock>
 type ClaudeMessage = { role: 'user' | 'assistant'; content: Content }
+
+const SUPPORTED_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 
 function buildUserContent(waypoint: Waypoint, submission: Submission): Content {
   const intro = `The challenge was titled "${waypoint.title}". The prompt the kid saw was:\n\n${waypoint.challenge.prompt}\n\n`
@@ -27,11 +29,16 @@ function buildUserContent(waypoint: Waypoint, submission: Submission): Content {
     return `${intro}The kid's typed submission:\n\n${submission}\n\nGive feedback as the JSON object specified.`
   }
 
-  // Photo submission — assume JPEG. If the frontend sends PNG, swap the media_type.
+  // Photo submission
+  let mediaType: 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif' = 'image/jpeg'
+  if (submission.imageMime && SUPPORTED_MIMES.includes(submission.imageMime)) {
+    mediaType = submission.imageMime as any
+  }
+  
   return [
     {
       type: 'image',
-      source: { type: 'base64', media_type: 'image/jpeg', data: submission.imageBase64 },
+      source: { type: 'base64', media_type: mediaType, data: submission.imageBase64 },
     },
     {
       type: 'text',

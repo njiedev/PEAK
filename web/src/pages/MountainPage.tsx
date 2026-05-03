@@ -4,6 +4,10 @@ import { generateRoute } from "../api"
 import type { Route, Waypoint as WaypointData } from "../../../shared/schema"
 import Waypoint from "../components/Waypoint"
 import mountainImg from "../assets/mountain.png"
+import { pickPosition } from "../lib/pathMath"
+import { useProgress } from "../lib/ProgressContext"
+import mountainImg from "../assets/mountain2.png"
+import SkyBackground from "../components/SkyBackground"
 
 type MountainLocationState = {
     skill?: string
@@ -67,7 +71,8 @@ function MountainPage() {
     const initialRoute = navigationState?.route ?? null
     const [route, setRoute] = useState<Route | null>(initialRoute)
     const [error, setError] = useState<string | null>(null)
-    const activeIndex = 0 // first uncompleted waypoint — mock for now
+    
+    const { activeIndex, isCompleted } = useProgress()
 
     useEffect(() => {
         if (!skill) return
@@ -101,6 +106,8 @@ function MountainPage() {
                 total: route?.route.length,
                 skill: route?.skill,
                 focus: pos,
+                fullRoute: route,
+                activeIndex,
             },
         })
     }
@@ -117,7 +124,7 @@ function MountainPage() {
     }
 
     return (
-        <div className="relative w-full min-h-screen overflow-hidden bg-[#0a0a14] text-white">
+        <div className="relative w-full min-h-screen overflow-hidden bg-[#0a0a0f] text-white">
             {/* mountain background */}
             <img
                 src={mountainImg}
