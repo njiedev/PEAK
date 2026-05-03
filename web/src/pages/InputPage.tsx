@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useCallback, useEffect, useState } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
 import { generateRoute } from "../api"
 import SkillInput from "../components/SkillInput"
 import StarField from "../components/Starfield";
@@ -13,12 +13,14 @@ function wait(ms: number) {
 
 function InputPage() {
     const navigate = useNavigate()
-    const [isLaunching, setIsLaunching] = useState(false)
+    const location = useLocation()
+    const queuedSkill = (location.state as { queuedSkill?: string } | null)?.queuedSkill
+    const [isLaunching, setIsLaunching] = useState(Boolean(queuedSkill))
+    const [launchedFromQueue, setLaunchedFromQueue] = useState(Boolean(queuedSkill))
     const [error, setError] = useState<string | null>(null)
+    const hideIntroDuringLaunch = launchedFromQueue && isLaunching
 
-    function handleStart(skill: string) {
-        if (isLaunching) return
-
+    const launchRoute = useCallback((skill: string) => {
         setIsLaunching(true)
         setError(null)
 
@@ -31,8 +33,21 @@ function InputPage() {
                 console.error("[start] route generation failed", err)
                 setError(err instanceof Error ? err.message : "route generation failed")
                 setIsLaunching(false)
+                setLaunchedFromQueue(false)
             })
-    }
+    }, [navigate])
+
+    const handleStart = useCallback((skill: string) => {
+        if (isLaunching) return
+        launchRoute(skill)
+    }, [isLaunching, launchRoute])
+
+    useEffect(() => {
+        if (!queuedSkill) return
+        setLaunchedFromQueue(true)
+        navigate(location.pathname, { replace: true, state: null })
+        launchRoute(queuedSkill)
+    }, [launchRoute, location.pathname, navigate, queuedSkill])
 
     return (
         <>
@@ -45,11 +60,17 @@ function InputPage() {
             </div>
 
             <div className={isLaunching ? "start-copy start-copy-exit" : "start-copy"}>
-                <h1 className='text-9xl font-bold text-white'>PEAK</h1>
-                <p className="text-white">this is what peak is about</p>
-                <div className="relative z-10 w-full max-w-lg px-4">
-                    <SkillInput disabled={isLaunching} onSubmit={handleStart}></SkillInput>
-                </div>
+                {!hideIntroDuringLaunch && (
+                    <>
+                        <Title />
+                        <div className="relative z-10 w-full max-w-lg px-4">
+                            <SkillInput disabled={isLaunching} onSubmit={handleStart}></SkillInput>
+                        </div>
+                    </>
+                )}
+                {hideIntroDuringLaunch && (
+                    <div className="h-1 w-1 opacity-0" aria-hidden="true" />
+                )}
             </div>
 
             {isLaunching && (

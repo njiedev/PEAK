@@ -6,12 +6,21 @@
   50% { opacity: 0; }
 }
 
+@keyframes peak-letter-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(-0.5deg);
+  }
+  50% {
+    transform: translate3d(0, -0.2em, 0) rotate(0.8deg);
+  }
+}
+
 @keyframes starfield-descent-loop {
   from {
-    transform: translate3d(0, -100vh, 0);
+    transform: translate3d(0, 0, 0);
   }
   to {
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(0, -100vh, 0);
   }
 }
 
@@ -124,6 +133,10 @@
   will-change: transform;
 }
 
+.starfield-ascent .starfield-descent-track {
+  animation-name: starfield-ascent-loop;
+}
+
 .loading-camera-shake {
   animation: camera-shake 0.28s infinite;
   will-change: transform;
@@ -186,6 +199,129 @@
 
 .start-copy-exit {
   animation: start-copy-exit 2.5s ease-in-out both;
+}
+
+.peak-title {
+  display: flex;
+  gap: clamp(0.55rem, 2vw, 1rem);
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+  color: white;
+  font-size: clamp(5rem, 14vw, 8rem);
+  font-weight: 800;
+  line-height: 0.86;
+  letter-spacing: 0;
+  text-shadow:
+    0 0 18px rgba(255, 255, 255, 0.38),
+    0 0 46px rgba(126, 181, 255, 0.32);
+}
+
+.peak-title-letter {
+  display: inline-block;
+  animation-name: peak-letter-float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  will-change: transform;
+}
+
+.space-signal-input {
+  position: relative;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.3rem 0 0.55rem;
+  color: white;
+}
+
+.space-signal-input::before,
+.space-signal-input::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 3rem;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+}
+
+.space-signal-input::before {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.72) 22%,
+    rgba(144, 190, 255, 0.82) 68%,
+    rgba(255, 255, 255, 0)
+  );
+}
+
+.space-signal-input::after {
+  bottom: -0.35rem;
+  background: radial-gradient(ellipse at center, rgba(134, 189, 255, 0.38), transparent 64%);
+  filter: blur(5px);
+}
+
+.space-signal-field {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: white;
+  font-size: 1rem;
+  line-height: 1.5;
+  outline: 0;
+  text-align: center;
+}
+
+.space-signal-field::placeholder {
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.space-signal-field:disabled {
+  opacity: 0.58;
+}
+
+.space-signal-button {
+  display: flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(182, 216, 255, 0.5);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.24), transparent 58%),
+    rgba(13, 20, 36, 0.42);
+  color: white;
+  font-size: 1.05rem;
+  line-height: 1;
+  box-shadow:
+    0 0 18px rgba(122, 180, 255, 0.32),
+    inset 0 0 14px rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.space-signal-button:hover:not(:disabled),
+.space-signal-button:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.82);
+  box-shadow:
+    0 0 24px rgba(122, 180, 255, 0.52),
+    inset 0 0 16px rgba(255, 255, 255, 0.12);
+}
+
+.space-signal-button:focus-visible {
+  outline: 2px solid rgba(186, 218, 255, 0.7);
+  outline-offset: 4px;
+}
+
+.space-signal-button:disabled {
+  cursor: default;
+  opacity: 0.5;
 }
 
 .start-loading-enter {
@@ -266,6 +402,88 @@
   100%    { opacity: 1; }
 }
 
+@keyframes starfield-ascent-loop {
+  from {
+    transform: translate3d(0, -100vh, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes endgame-mountain-flight {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+  16% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 74vh, 0);
+    opacity: 0.22;
+  }
+}
+
+@keyframes endgame-scene-in {
+  0% { background: rgba(0, 0, 0, 0); }
+  18% { background: rgba(0, 0, 0, 0.22); }
+  100% { background: rgba(0, 0, 0, 0.88); }
+}
+
+@keyframes endgame-congrats {
+  0%, 6% {
+    opacity: 0;
+    transform: translate3d(-50%, calc(-50% + 18px), 0);
+  }
+  18%, 34% {
+    opacity: 1;
+    transform: translate3d(-50%, -50%, 0);
+  }
+  46%, 100% {
+    opacity: 0;
+    transform: translate3d(-50%, calc(-50% - 24px), 0);
+  }
+}
+
+@keyframes endgame-journey-text {
+  0%, 40% {
+    opacity: 0;
+    transform: translate3d(-50%, calc(-50% + 20px), 0) scale(1);
+  }
+  52%, 64% {
+    opacity: 1;
+    transform: translate3d(-50%, -50%, 0) scale(1);
+  }
+  80%, 100% {
+    opacity: 1;
+    transform: translate3d(-50%, -42vh, 0) scale(0.56);
+  }
+}
+
+@keyframes endgame-stats-in {
+  0%, 76% {
+    opacity: 0;
+    transform: translate3d(-50%, 26px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes endgame-new-peak-in {
+  0%, 82% {
+    opacity: 0;
+    transform: translate3d(-50%, 18px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
 .mountain-reveal-overlay {
   position: absolute;
   inset: 0;
@@ -297,6 +515,216 @@
 
 .mountain-reveal-chrome {
   animation: mountain-reveal-chrome 4.8s ease-out both;
+}
+
+.endgame-mountain-stage {
+  animation: endgame-mountain-flight 7s cubic-bezier(0.3, 0, 0.1, 1) both;
+  transform-origin: center 18%;
+  will-change: transform, opacity;
+}
+
+.endgame-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  overflow: hidden;
+  color: white;
+  pointer-events: none;
+  animation: endgame-scene-in 7s ease-in both;
+}
+
+.endgame-stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0.9;
+}
+
+.endgame-copy {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  text-align: center;
+}
+
+.endgame-congrats {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: flex;
+  width: min(42rem, calc(100vw - 2rem));
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  font-size: clamp(1.45rem, 4vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.05;
+  text-shadow: 0 0 28px rgba(255, 255, 255, 0.28), 0 4px 24px rgba(0, 0, 0, 0.72);
+  animation: endgame-congrats 7s ease-in-out both;
+}
+
+.endgame-peak {
+  margin: 0;
+  font-size: clamp(4.4rem, 13vw, 8rem);
+}
+
+.endgame-journey-text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(40rem, calc(100vw - 2rem));
+  font-size: clamp(1.8rem, 5vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.05;
+  text-shadow: 0 0 24px rgba(134, 189, 255, 0.36), 0 4px 24px rgba(0, 0, 0, 0.74);
+  animation: endgame-journey-text 7s cubic-bezier(0.3, 0, 0.1, 1) both;
+}
+
+.endgame-stats {
+  position: absolute;
+  left: 50%;
+  top: 34vh;
+  display: grid;
+  width: min(46rem, calc(100vw - 2rem));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  animation: endgame-stats-in 7s ease-out both;
+}
+
+.endgame-stats > div {
+  min-height: 7rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  background: rgba(7, 13, 28, 0.66);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.36), inset 0 0 28px rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 1rem;
+  backdrop-filter: blur(12px);
+}
+
+.endgame-stats span {
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.endgame-stats strong {
+  color: white;
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  line-height: 1;
+}
+
+.endgame-new-peak {
+  position: absolute;
+  left: 50%;
+  top: calc(34vh + 8.2rem);
+  width: min(34rem, calc(100vw - 2rem));
+  pointer-events: auto;
+  animation: endgame-new-peak-in 7s ease-out both;
+}
+
+.endgame-new-peak p {
+  margin-bottom: 0.55rem;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.endgame-new-peak .space-signal-input {
+  padding-inline: 0.85rem;
+  border: 1px solid rgba(182, 216, 255, 0.24);
+  border-radius: 8px;
+  background: rgba(7, 13, 28, 0.54);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.3), inset 0 0 22px rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+}
+
+.endgame-new-peak > span {
+  display: block;
+  margin-top: 0.55rem;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 760px) {
+  .endgame-stats {
+    top: 30vh;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .endgame-stats > div {
+    min-height: 5.9rem;
+  }
+
+  .endgame-new-peak {
+    top: calc(30vh + 13rem);
+  }
+}
+
+/* ---------- Mountain route atmosphere ---------- */
+
+@keyframes trail-glow-breathe {
+  0%, 100% {
+    opacity: 0.68;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes trail-spark-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  28% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-2.2px);
+  }
+}
+
+.trail-glow {
+  animation: trail-glow-breathe 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px rgba(255, 170, 70, 0.74));
+  will-change: opacity;
+}
+
+.trail-glow-reflection {
+  opacity: 0.62;
+  filter:
+    drop-shadow(0 0 10px rgba(255, 126, 54, 0.36))
+    drop-shadow(0 10px 8px rgba(255, 184, 90, 0.16));
+}
+
+.trail-glow-wide {
+  animation-delay: -1.1s;
+  filter: drop-shadow(0 0 8px rgba(255, 186, 92, 0.5));
+}
+
+.trail-glow-core {
+  animation-duration: 2.15s;
+  filter:
+    drop-shadow(0 0 3px rgba(255, 246, 191, 0.9))
+    drop-shadow(0 0 9px rgba(255, 168, 64, 0.64));
+}
+
+.trail-spark {
+  fill: rgba(255, 242, 184, 0.96);
+  filter: drop-shadow(0 0 4px rgba(255, 174, 72, 0.82));
+  animation: trail-spark-rise 2.4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 @keyframes detail-zoom-in {
@@ -380,8 +808,459 @@
   to   { opacity: 0; }
 }
 
+@keyframes detail-waypoint-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 .detail-waypoint-fade-out {
   animation: detail-waypoint-fade-out 0.6s ease-out 0.2s both;
+}
+
+.detail-waypoint-fade-in {
+  animation: detail-waypoint-fade-in 0.45s ease-out both;
+}
+
+/* ---------- Waypoint detail woodland skin ---------- */
+
+.waypoint-woodgrain {
+  z-index: 1;
+  opacity: 0.42;
+  background:
+    repeating-linear-gradient(
+      104deg,
+      rgba(120, 75, 38, 0.08) 0,
+      rgba(120, 75, 38, 0.08) 2px,
+      rgba(29, 17, 9, 0) 8px,
+      rgba(29, 17, 9, 0) 16px
+    ),
+    radial-gradient(ellipse at 22% 78%, rgba(141, 82, 32, 0.2), transparent 38%),
+    radial-gradient(ellipse at 78% 12%, rgba(255, 168, 82, 0.12), transparent 34%);
+  mix-blend-mode: soft-light;
+}
+
+.waypoint-detail-layout {
+  color: #fff7e8;
+}
+
+.waypoint-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 238, 206, 0.68);
+  font-size: 0.875rem;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.waypoint-link:hover,
+.waypoint-link:focus-visible {
+  color: #fff6dc;
+  transform: translateX(-2px);
+  outline: none;
+}
+
+.waypoint-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: rgba(255, 220, 156, 0.72);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.waypoint-kicker-rule {
+  display: inline-block;
+  width: 2rem;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 200, 118, 0), rgba(255, 200, 118, 0.72));
+}
+
+.waypoint-title {
+  max-width: 13ch;
+  color: #fff2d2;
+  font-size: clamp(2.8rem, 6vw, 5.6rem);
+  font-weight: 850;
+  letter-spacing: 0;
+  line-height: 0.92;
+  text-shadow:
+    0 4px 18px rgba(0, 0, 0, 0.68),
+    0 0 32px rgba(255, 147, 57, 0.18);
+}
+
+.waypoint-chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(134, 97, 47, 0.72);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(83, 49, 22, 0.7), rgba(38, 22, 11, 0.72));
+  color: #f7ddb0;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.875rem;
+  box-shadow:
+    inset 0 1px rgba(255, 226, 177, 0.12),
+    0 10px 26px rgba(0, 0, 0, 0.28);
+}
+
+.waypoint-scroll-panel,
+.waypoint-modal {
+  position: relative;
+  overflow: visible;
+  border: 2px solid rgba(66, 35, 14, 0.96);
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at 0% 14%, rgba(48, 24, 9, 0.6) 0 4%, transparent 5%),
+    radial-gradient(ellipse at 100% 36%, rgba(48, 24, 9, 0.55) 0 4%, transparent 5%),
+    radial-gradient(ellipse at 0% 62%, rgba(48, 24, 9, 0.52) 0 4%, transparent 5%),
+    radial-gradient(ellipse at 100% 86%, rgba(48, 24, 9, 0.58) 0 4%, transparent 5%),
+    linear-gradient(180deg, rgba(151, 93, 44, 0.98), rgba(94, 53, 24, 0.99)),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 224, 151, 0.12) 0,
+      rgba(255, 224, 151, 0.12) 2px,
+      rgba(91, 48, 19, 0.18) 2px,
+      rgba(91, 48, 19, 0.18) 2.25rem,
+      rgba(43, 20, 7, 0.56) 2.25rem,
+      rgba(43, 20, 7, 0.56) 2.55rem,
+      rgba(255, 223, 154, 0.1) 2.55rem,
+      rgba(255, 223, 154, 0.1) 4.8rem
+    ),
+    repeating-linear-gradient(
+      96deg,
+      rgba(255, 235, 178, 0.07) 0,
+      rgba(255, 235, 178, 0.07) 3px,
+      transparent 8px,
+      transparent 22px
+    );
+  box-shadow:
+    inset 0 5px rgba(255, 221, 153, 0.22),
+    inset 0 -18px 32px rgba(35, 15, 5, 0.34),
+    inset 18px 0 28px rgba(45, 20, 7, 0.22),
+    inset -18px 0 28px rgba(45, 20, 7, 0.22),
+    0 28px 70px rgba(0, 0, 0, 0.48);
+}
+
+.waypoint-scroll-panel {
+  padding: clamp(1.4rem, 3vw, 2.25rem);
+  transform: rotate(-0.45deg);
+}
+
+.waypoint-scroll-panel::before,
+.waypoint-modal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 8% 12%, rgba(255, 224, 153, 0.18), transparent 20%),
+    radial-gradient(ellipse at 92% 88%, rgba(39, 18, 6, 0.28), transparent 28%),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 4.55rem,
+      rgba(35, 16, 5, 0.62) 4.55rem,
+      rgba(35, 16, 5, 0.62) 4.85rem
+    );
+}
+
+.waypoint-scroll-panel::after {
+  content: "";
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 100%;
+  height: 42vh;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 19.5% 0%, rgba(255, 220, 148, 0.2), transparent 18%),
+    radial-gradient(ellipse at 80.5% 0%, rgba(255, 220, 148, 0.18), transparent 18%),
+    linear-gradient(90deg, transparent 0 12%, rgba(48, 25, 10, 0.99) 12% 27%, transparent 27% 73%, rgba(48, 25, 10, 0.99) 73% 88%, transparent 88%),
+    linear-gradient(90deg, transparent 0 13%, rgba(126, 77, 36, 0.62) 13% 18%, transparent 18% 73%, rgba(126, 77, 36, 0.62) 73% 78%, transparent 78%);
+  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.45));
+}
+
+.waypoint-scroll-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.waypoint-task-block,
+.waypoint-locked,
+.waypoint-file-drop,
+.waypoint-answer {
+  border: 1px solid rgba(60, 30, 10, 0.72);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 234, 174, 0.12), rgba(55, 29, 10, 0.22)),
+    repeating-linear-gradient(0deg, rgba(255, 223, 151, 0.05) 0 2px, transparent 2px 1.4rem),
+    rgba(82, 45, 18, 0.42);
+  box-shadow:
+    inset 0 1px rgba(255, 238, 197, 0.12),
+    inset 0 -8px 14px rgba(41, 19, 6, 0.18);
+}
+
+.waypoint-task-block,
+.waypoint-locked,
+.waypoint-file-drop {
+  padding: 1rem;
+}
+
+.waypoint-task-block {
+  margin-top: 1.5rem;
+}
+
+.waypoint-locked {
+  margin-bottom: 1.25rem;
+  color: rgba(255, 239, 210, 0.72);
+  font-size: 0.875rem;
+}
+
+.waypoint-divider {
+  height: 2px;
+  margin: 1.75rem 0;
+  background: linear-gradient(90deg, transparent, rgba(62, 31, 10, 0.55), rgba(238, 178, 95, 0.22), rgba(62, 31, 10, 0.55), transparent);
+}
+
+.waypoint-answer {
+  width: 100%;
+  resize: none;
+  padding: 0.95rem 1rem;
+  color: #fff7e6;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  outline: 0;
+  transform: rotate(0.25deg);
+}
+
+.waypoint-answer::placeholder {
+  color: rgba(255, 232, 193, 0.36);
+}
+
+.waypoint-answer:focus {
+  border-color: rgba(255, 190, 103, 0.74);
+  box-shadow:
+    0 0 0 2px rgba(255, 158, 71, 0.14),
+    inset 0 1px rgba(255, 238, 197, 0.12);
+}
+
+.waypoint-answer:disabled {
+  opacity: 0.58;
+}
+
+.waypoint-action,
+.waypoint-small-button {
+  border: 1px solid rgba(70, 38, 15, 0.88);
+  border-radius: 4px;
+  background:
+    linear-gradient(180deg, rgba(170, 102, 43, 0.94), rgba(92, 50, 21, 0.96));
+  color: #fff0cf;
+  box-shadow:
+    inset 0 1px rgba(255, 223, 168, 0.22),
+    inset 0 -10px 18px rgba(46, 22, 8, 0.28),
+    0 10px 26px rgba(0, 0, 0, 0.28);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.waypoint-action {
+  position: relative;
+  width: 100%;
+  margin-top: 1.25rem;
+  overflow: hidden;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.waypoint-action:hover:not(:disabled),
+.waypoint-small-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(255, 184, 91, 0.8);
+  box-shadow:
+    inset 0 1px rgba(255, 223, 168, 0.26),
+    inset 0 -10px 18px rgba(46, 22, 8, 0.28),
+    0 0 28px rgba(255, 128, 54, 0.22),
+    0 12px 30px rgba(0, 0, 0, 0.32);
+}
+
+.waypoint-action:disabled,
+.waypoint-small-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.46;
+}
+
+.waypoint-action-complete {
+  border-color: rgba(106, 139, 83, 0.8);
+  background: linear-gradient(180deg, rgba(92, 125, 62, 0.92), rgba(51, 78, 37, 0.95));
+}
+
+.waypoint-small-button {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.waypoint-small-button-muted {
+  background: linear-gradient(180deg, rgba(85, 58, 35, 0.7), rgba(45, 29, 17, 0.78));
+  color: rgba(255, 238, 209, 0.72);
+}
+
+.waypoint-modal {
+  width: 100%;
+  max-width: 32rem;
+  color: #fff7e8;
+}
+
+/* ---------- Pixel guide dialogue ---------- */
+
+@keyframes game-dialogue-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(-50%, 1.4rem, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0) scale(1);
+  }
+}
+
+@keyframes game-dialogue-text {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes game-dialogue-prompt {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+.game-dialogue-wrap {
+  position: fixed;
+  inset: auto 0 1.25rem;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.game-dialogue-panel {
+  position: relative;
+  left: 50%;
+  width: min(96vw, 72rem);
+  aspect-ratio: 1881 / 836;
+  color: #f7fbff;
+  filter:
+    drop-shadow(0 18px 34px rgba(0, 0, 0, 0.62))
+    drop-shadow(0 0 18px rgba(75, 118, 184, 0.22));
+  animation: game-dialogue-enter 0.28s steps(5, end) both;
+  image-rendering: auto;
+  pointer-events: auto;
+}
+
+.game-dialogue-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+}
+
+.game-dialogue-copy {
+  position: absolute;
+  left: 24.4%;
+  right: 6.8%;
+  top: 30.8%;
+  bottom: 13.6%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: clamp(0.3rem, 0.8vw, 0.65rem);
+  padding: clamp(0.35rem, 1.1vw, 0.85rem) clamp(0.5rem, 1.5vw, 1rem);
+  font-family: "Courier New", "Lucida Console", monospace;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.82);
+}
+
+.game-dialogue-speaker {
+  width: fit-content;
+  border: 1px solid rgba(135, 169, 223, 0.42);
+  background: linear-gradient(180deg, rgba(24, 45, 75, 0.88), rgba(10, 22, 42, 0.88));
+  color: #d8e8ff;
+  padding: 0.18rem 0.55rem;
+  font-size: clamp(0.56rem, 1.15vw, 0.78rem);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.game-dialogue-text {
+  max-width: 56rem;
+  color: #f4f8ff;
+  font-size: clamp(0.86rem, 2.15vw, 1.23rem);
+  font-weight: 800;
+  line-height: 1.48;
+  letter-spacing: 0;
+}
+
+.game-dialogue-text span {
+  display: inline-block;
+  animation: game-dialogue-text 1.1s steps(44, end) both;
+}
+
+.game-dialogue-advance {
+  position: absolute;
+  right: 0.7rem;
+  bottom: 0.25rem;
+  border: 0;
+  background: transparent;
+  color: #e6f0ff;
+  font-family: "Courier New", "Lucida Console", monospace;
+  font-size: clamp(0.68rem, 1.35vw, 0.9rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 0 black;
+  cursor: pointer;
+  animation: game-dialogue-prompt 0.85s steps(2, end) infinite;
+}
+
+.game-dialogue-advance:hover,
+.game-dialogue-advance:focus-visible {
+  color: #fff4bd;
+  outline: none;
+}
+
+@media (max-width: 680px) {
+  .game-dialogue-wrap {
+    bottom: 0.5rem;
+  }
+
+  .game-dialogue-panel {
+    width: min(99vw, 42rem);
+  }
+
+  .game-dialogue-copy {
+    left: 23.8%;
+    right: 5.8%;
+    top: 29.8%;
+    bottom: 11%;
+  }
 }
 
 /* ---------- Campfire waypoint ---------- */

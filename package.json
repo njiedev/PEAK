@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.1",
   "description": "AI-generated learning routes for kids — BeaverHacks 2026",
+  "scripts": {
+    "demo:seed-cache": "tsx ai/prewarmDemoCache.ts"
+  },
   "devDependencies": {
     "@types/node": "^25.6.0",
     "dotenv": "^17.4.2",

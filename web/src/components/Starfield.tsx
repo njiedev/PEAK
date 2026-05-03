@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-type StarFieldMode = "idle" | "descent"
+type StarFieldMode = "idle" | "descent" | "ascent"
 type StarData = {
   x: number
   y: number
@@ -24,9 +24,10 @@ function Star({
   opacity: number
   mode: StarFieldMode
 }) {
-  const displaySize = mode === "descent" ? size + 2 : size
-  const shadow = mode === "descent" ? "0 0 8px rgba(255, 255, 255, 0.9)" : undefined
-  const animation = mode === "descent" ? undefined : `blink 2s ${delay}s infinite`
+  const moving = mode === "descent" || mode === "ascent"
+  const displaySize = moving ? size + 2 : size
+  const shadow = moving ? "0 0 8px rgba(255, 255, 255, 0.9)" : undefined
+  const animation = moving ? undefined : `blink 2s ${delay}s infinite`
 
   return (
     <div
@@ -48,7 +49,7 @@ export default function StarField({ mode = "idle" }: { mode?: StarFieldMode }) {
   const [stars, setStars] = useState<StarData[]>([])
 
   useEffect(() => {
-    const generated = Array.from({ length: mode === "descent" ? 140 : 120 }, () => ({
+    const generated = Array.from({ length: mode === "idle" ? 120 : 140 }, () => ({
       x: Math.random() * 100,
       y: Math.random() * 100,
       delay: Math.random() * 3,
@@ -60,10 +61,10 @@ export default function StarField({ mode = "idle" }: { mode?: StarFieldMode }) {
 
   return (
     <div
-      className={mode === "descent" ? "starfield-descent" : "absolute inset-0"}
+      className={mode === "idle" ? "absolute inset-0" : `starfield-descent ${mode === "ascent" ? "starfield-ascent" : ""}`}
       aria-hidden="true"
     >
-      {mode === "descent" ? (
+      {mode !== "idle" ? (
         <div className="starfield-descent-track">
           <div className="absolute inset-x-0 top-0 h-screen">
             {stars.map((star, i) => (

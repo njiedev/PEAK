@@ -1,9 +1,10 @@
-import { useEffect, useState, type CSSProperties } from "react"
+import { useEffect, useRef, useState, type CSSProperties } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { generateRoute } from "../api"
 import type { Route, Waypoint as WaypointData } from "../../../shared/schema"
 import Waypoint from "../components/Waypoint"
 import StarField from "../components/Starfield"
+import SkillInput from "../components/SkillInput"
 import mountainImg from "../assets/mountain2.png"
 import { pickPosition } from "../lib/pathMath"
 import { useProgress } from "../lib/ProgressContext"
@@ -14,12 +15,142 @@ type MountainLocationState = {
     reveal?: boolean
 }
 
+type MountainPageProps = {
+    simulateEndgame?: boolean
+}
+
 const REVEAL_DURATION_MS = 7200
+const SUMMIT_DEMO_SKILL = "i want to start a minecraft server"
+const LOGIN_STREAK_STORAGE_KEY = "peak_login_streak"
+const JOURNEY_STATS_STORAGE_KEY_PREFIX = "peak_journey_stats"
+const ENDGAME_SEEN_STORAGE_KEY_PREFIX = "peak_endgame_seen"
+
+function journeyStatsKey(scope: string): string {
+    return `${JOURNEY_STATS_STORAGE_KEY_PREFIX}_${scope}`
+}
+
+function endgameSeenKey(scope: string): string {
+    return `${ENDGAME_SEEN_STORAGE_KEY_PREFIX}_${scope}`
+}
+
+type LoginStreak = {
+    count: number
+    lastLoginDate: string
+    highestCount: number
+}
+
+type JourneyStats = {
+    totalAttempts: number
+    longestTaskMs: number
+    shortestTaskMs: number | null
+}
+
+function localDateKey(date = new Date()): string {
+    const year = date.getFullYear()
+    const month = `${date.getMonth() + 1}`.padStart(2, "0")
+    const day = `${date.getDate()}`.padStart(2, "0")
+    return `${year}-${month}-${day}`
+}
+
+function daysBetween(startDateKey: string, endDateKey: string): number | null {
+    const [startYear, startMonth, startDay] = startDateKey.split("-").map(Number)
+    const [endYear, endMonth, endDay] = endDateKey.split("-").map(Number)
+
+    if (
+        !startYear || !startMonth || !startDay ||
+        !endYear || !endMonth || !endDay
+    ) {
+        return null
+    }
+
+    const start = new Date(startYear, startMonth - 1, startDay)
+    const end = new Date(endYear, endMonth - 1, endDay)
+    return Math.round((end.getTime() - start.getTime()) / 86_400_000)
+}
+
+function readLoginStreak(): LoginStreak {
+    const today = localDateKey()
+    const fallback = { count: 1, lastLoginDate: today, highestCount: 1 }
+
+    try {
+        const saved = window.localStorage.getItem(LOGIN_STREAK_STORAGE_KEY)
+        if (!saved) return fallback
+
+        const parsed = JSON.parse(saved) as Partial<LoginStreak>
+        const previousCount = Number.isFinite(parsed.count) ? Number(parsed.count) : 0
+        const previousHighest = Number.isFinite(parsed.highestCount) ? Number(parsed.highestCount) : previousCount
+        const previousDate = typeof parsed.lastLoginDate === "string" ? parsed.lastLoginDate : ""
+        const elapsedDays = daysBetween(previousDate, today)
+
+        if (elapsedDays === 0) {
+            const count = Math.max(1, previousCount)
+            return { count, lastLoginDate: today, highestCount: Math.max(count, previousHighest) }
+        }
+
+        if (elapsedDays === 1) {
+            const count = Math.max(1, previousCount) + 1
+            return { count, lastLoginDate: today, highestCount: Math.max(count, previousHighest) }
+        }
+
+        return fallback
+    } catch {
+        return fallback
+    }
+}
+
+function readJourneyStats(scope: string): JourneyStats {
+    try {
+        const saved = window.localStorage.getItem(journeyStatsKey(scope))
+        if (!saved) return { totalAttempts: 0, longestTaskMs: 0, shortestTaskMs: null }
+
+        const parsed = JSON.parse(saved) as Partial<JourneyStats>
+        return {
+            totalAttempts: Number.isFinite(parsed.totalAttempts) ? Number(parsed.totalAttempts) : 0,
+            longestTaskMs: Number.isFinite(parsed.longestTaskMs) ? Number(parsed.longestTaskMs) : 0,
+            shortestTaskMs: Number.isFinite(parsed.shortestTaskMs) ? Number(parsed.shortestTaskMs) : null,
+        }
+    } catch {
+        return { totalAttempts: 0, longestTaskMs: 0, shortestTaskMs: null }
+    }
+}
+
+function formatDuration(ms: number | null): string {
+    if (ms === null || ms <= 0) return "Not yet"
+
+    const totalSeconds = Math.max(1, Math.round(ms / 1000))
+    const minutes = Math.floor(totalSeconds / 60)
+    const seconds = totalSeconds % 60
+
+    if (minutes === 0) return `${seconds}s`
+    if (seconds === 0) return `${minutes}m`
+    return `${minutes}m ${seconds}s`
+}
+
+function routeStorageScope(value: string): string {
+    return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "default"
+}
+
+const ENDGAME_SIMULATOR_ROUTE: Route = {
+    skill: "endgame simulator",
+    estimatedHours: 8,
+    route: Array.from({ length: 8 }, (_, index) => ({
+        id: 9000 + index,
+        title: index === 7 ? "Reach the PEAK" : `Simulator waypoint ${index + 1}`,
+        summary: "A simulated waypoint for tuning the credits animation.",
+        challenge: {
+            type: "text",
+            prompt: "This waypoint is already complete in the simulator.",
+        },
+        difficulty: Math.min(5, index + 1) as 1 | 2 | 3 | 4 | 5,
+        x: 0,
+        y: 0,
+    })),
+}
 
 // Catmull-Rom → cubic bezier. Produces a smooth SVG path through every point.
 function smoothPath(pts: { x: number; y: number }[]): string {
     if (pts.length < 2) return ""
-    const p = pts.map(pt => [pt.x * 100, pt.y * 100])
+    const p = pts.map(pt=> [pt.x * 100, pt.y * 100])
     let d = `M ${p[0][0].toFixed(2)},${p[0][1].toFixed(2)}`
     for (let i = 0; i < p.length - 1; i++) {
         const p0 = p[Math.max(0, i - 1)]
@@ -35,17 +166,81 @@ function smoothPath(pts: { x: number; y: number }[]): string {
     return d
 }
 
-function MountainPage() {
+function MountainPage({ simulateEndgame = false }: MountainPageProps) {
     const location = useLocation()
     const navigate = useNavigate()
     const navigationState = location.state as MountainLocationState | null
-    const skill = navigationState?.skill
-    const initialRoute = navigationState?.route ?? null
+    const skill = simulateEndgame ? ENDGAME_SIMULATOR_ROUTE.skill : navigationState?.skill
+    const initialRoute = simulateEndgame ? ENDGAME_SIMULATOR_ROUTE : navigationState?.route ?? null
     const [route, setRoute] = useState<Route | null>(initialRoute)
     const [error, setError] = useState<string | null>(null)
     const [revealing, setRevealing] = useState(Boolean(navigationState?.reveal && initialRoute))
+    const [loginStreak, setLoginStreak] = useState<LoginStreak>(() => readLoginStreak())
+    const [journeyStats, setJourneyStats] = useState<JourneyStats>(() => readJourneyStats(routeStorageScope(initialRoute?.skill ?? skill ?? "default")))
+    const [showEndgame, setShowEndgame] = useState(false)
+    const [generatingNewPeak, setGeneratingNewPeak] = useState(false)
+    const [newPeakStatus, setNewPeakStatus] = useState<string | null>(null)
+    const hadCompletedRouteRef = useRef(false)
 
-    const { activeIndex, isCompleted } = useProgress()
+    const { activeIndex, completedWaypoints, isCompleted, progressScope, setCompleted, setProgressScope } = useProgress()
+
+    useEffect(() => {
+        window.localStorage.setItem(LOGIN_STREAK_STORAGE_KEY, JSON.stringify(loginStreak))
+    }, [loginStreak])
+
+    useEffect(() => {
+        const refreshLoginStreak = () => setLoginStreak(readLoginStreak())
+        window.addEventListener("focus", refreshLoginStreak)
+        document.addEventListener("visibilitychange", refreshLoginStreak)
+
+        return () => {
+            window.removeEventListener("focus", refreshLoginStreak)
+            document.removeEventListener("visibilitychange", refreshLoginStreak)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!route) return
+        if (simulateEndgame) return
+        const nextScope = routeStorageScope(route.skill)
+        hadCompletedRouteRef.current = false
+        setShowEndgame(false)
+        setGeneratingNewPeak(false)
+        setNewPeakStatus(null)
+        setProgressScope(nextScope)
+    }, [route, setProgressScope, simulateEndgame])
+
+    useEffect(() => {
+        if (!simulateEndgame) return
+        const simulatorScope = routeStorageScope(ENDGAME_SIMULATOR_ROUTE.skill)
+        setProgressScope(simulatorScope)
+        setCompleted(ENDGAME_SIMULATOR_ROUTE.route.map((waypoint) => waypoint.id))
+        setJourneyStats({
+            totalAttempts: 12,
+            longestTaskMs: 14 * 60 * 1000 + 22 * 1000,
+            shortestTaskMs: 48 * 1000,
+        })
+        hadCompletedRouteRef.current = false
+        setShowEndgame(true)
+    }, [setCompleted, setProgressScope, simulateEndgame])
+
+    useEffect(() => {
+        if (!route) return
+        if (progressScope !== routeStorageScope(route.skill)) return
+
+        const scope = routeStorageScope(route.skill)
+        const routeComplete = route.route.length > 0 && route.route.every((waypoint) => completedWaypoints.includes(waypoint.id))
+        if (routeComplete && !hadCompletedRouteRef.current) {
+            const alreadySeen = window.localStorage.getItem(endgameSeenKey(scope)) === "1"
+            if (!alreadySeen) {
+                setJourneyStats(readJourneyStats(scope))
+                setShowEndgame(true)
+                window.localStorage.setItem(endgameSeenKey(scope), "1")
+            }
+        }
+
+        hadCompletedRouteRef.current = routeComplete
+    }, [completedWaypoints, progressScope, route])
 
     useEffect(() => {
         if (!revealing) return
@@ -57,11 +252,16 @@ function MountainPage() {
         const t = window.setTimeout(() => setRevealing(false), REVEAL_DURATION_MS)
         return () => window.clearTimeout(t)
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [revealing])
 
     const peakPos = route ? pickPosition(route.route.length - 1, route.route.length) : { x: 0.5, y: 0.18 }
+    const routeScope = route ? routeStorageScope(route.skill) : "default"
+    const progressReady = !route || progressScope === routeScope
+    const effectiveActiveIndex = progressReady ? activeIndex : 0
+    const isWaypointCompleted = (waypointId: number) => progressReady && isCompleted(waypointId)
 
     useEffect(() => {
+        if (simulateEndgame) return
         if (!skill) return
         if (initialRoute) {
             setRoute(initialRoute)
@@ -82,7 +282,13 @@ function MountainPage() {
             })
 
         return () => { isCurrent = false }
-    }, [skill, initialRoute])
+    }, [skill, initialRoute, simulateEndgame])
+
+    useEffect(() => {
+        if (!route) return
+        if (route.skill.trim().toLowerCase() !== SUMMIT_DEMO_SKILL) return
+        setCompleted(route.route.slice(0, -1).map((waypoint) => waypoint.id))
+    }, [route, setCompleted])
 
     function openWaypoint(waypoint: WaypointData, index: number) {
         const pos = pickPosition(index, route?.route.length ?? 1)
@@ -94,8 +300,17 @@ function MountainPage() {
                 skill: route?.skill,
                 focus: pos,
                 fullRoute: route,
-                activeIndex,
+                activeIndex: effectiveActiveIndex,
             },
+        })
+    }
+
+    function climbNewPeak(nextSkill: string) {
+        if (generatingNewPeak) return
+
+        setGeneratingNewPeak(true)
+        navigate("/", {
+            state: { queuedSkill: nextSkill },
         })
     }
 
@@ -111,9 +326,13 @@ function MountainPage() {
     }
 
     return (
-        <div className="relative w-full min-h-screen">
+        <div className={`relative w-full min-h-screen ${showEndgame ? "bg-black" : ""}`}>
             <div
-                className={revealing ? "mountain-reveal-stage absolute inset-0" : "absolute inset-0"}
+                className={
+                    revealing ? "mountain-reveal-stage absolute inset-0" :
+                    showEndgame ? "endgame-mountain-stage absolute inset-0" :
+                    "absolute inset-0"
+                }
                 style={revealing ? ({ ["--peak-x"]: peakPos.x, ["--peak-y"]: peakPos.y } as CSSProperties) : undefined}
             >
             {/* mountain background */}
@@ -124,19 +343,22 @@ function MountainPage() {
                 draggable={false}
             />
             {/* subtle vignette so waypoints pop */}
-            <div
-                className="pointer-events-none absolute inset-0"
-                style={{
-                    background:
-                        "radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.45) 100%)",
-                }}
-            />
+            {!showEndgame && (
+                <div
+                    className="pointer-events-none absolute inset-0"
+                    style={{
+                        background:
+                            "radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.45) 100%)",
+                    }}
+                />
+            )}
 
             {/* trail + waypoints layer */}
             {route && (() => {
                 const positions = route.route.map((_, i) => pickPosition(i, route.route.length))
                 const ghostPath = smoothPath(positions)
-                const donePath = activeIndex > 0 ? smoothPath(positions.slice(0, activeIndex + 1)) : null
+                const donePath = effectiveActiveIndex > 0 ? smoothPath(positions.slice(0, effectiveActiveIndex + 1)) : null
+                const completedPositions = positions.slice(0, Math.min(effectiveActiveIndex + 1, positions.length))
                 return (
                     <div className="absolute inset-0 z-10">
                         {/* SVG trail — rendered below campfires */}
@@ -162,6 +384,11 @@ function MountainPage() {
                                         />
                                     ))}
                                 </mask>
+                                <linearGradient id="completed-trail-glow" x1="0%" y1="100%" x2="100%" y2="0%">
+                                    <stop offset="0%" stopColor="rgba(255, 112, 48, 0.95)" />
+                                    <stop offset="46%" stopColor="rgba(255, 194, 92, 0.94)" />
+                                    <stop offset="100%" stopColor="rgba(255, 244, 190, 0.92)" />
+                                </linearGradient>
                             </defs>
                             <path
                                 d={ghostPath}
@@ -174,15 +401,48 @@ function MountainPage() {
                                 strokeDasharray="1.5 2.2"
                             />
                             {donePath && (
-                                <path
-                                    d={donePath}
-                                    mask="url(#trail-campfire-mask)"
-                                    fill="none"
-                                    stroke="rgba(245,158,11,0.9)"
-                                    strokeWidth="0.65"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
+                                <>
+                                    <path
+                                        className="trail-glow trail-glow-reflection"
+                                        d={donePath}
+                                        mask="url(#trail-campfire-mask)"
+                                        fill="none"
+                                        stroke="rgba(255, 154, 64, 0.2)"
+                                        strokeWidth="2.15"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                    <path
+                                        className="trail-glow trail-glow-wide"
+                                        d={donePath}
+                                        mask="url(#trail-campfire-mask)"
+                                        fill="none"
+                                        stroke="rgba(255, 178, 72, 0.38)"
+                                        strokeWidth="1.35"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                    <path
+                                        className="trail-glow trail-glow-core"
+                                        d={donePath}
+                                        mask="url(#trail-campfire-mask)"
+                                        fill="none"
+                                        stroke="url(#completed-trail-glow)"
+                                        strokeWidth="0.68"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                    {completedPositions.map((pos, i) => (
+                                        <circle
+                                            key={`trail-spark-${i}`}
+                                            className="trail-spark"
+                                            cx={pos.x * 100}
+                                            cy={pos.y * 100}
+                                            r={0.28}
+                                            style={{ animationDelay: `${i * 0.22}s` }}
+                                        />
+                                    ))}
+                                </>
                             )}
                         </svg>
 
@@ -190,8 +450,8 @@ function MountainPage() {
                         {positions.map((pos, i) => {
                             const wp = route.route[i]
                             const state =
-                                i < activeIndex ? "completed" :
-                                i === activeIndex ? "active" : "far"
+                                isWaypointCompleted(wp.id) || i < effectiveActiveIndex ? "completed" :
+                                i === effectiveActiveIndex ? "active" : "far"
                             return (
                                 <div
                                     key={wp.id}
@@ -227,19 +487,32 @@ function MountainPage() {
             )}
 
             {/* header */}
-            <header className={(revealing ? "mountain-reveal-chrome " : "") + "relative z-20 flex items-center justify-between px-8 py-5"}>
+            <header className={(revealing || showEndgame ? "mountain-reveal-chrome " : "") + "relative z-20 flex items-center justify-between px-8 py-5"}>
                 <Link to="/" className="text-sm text-white/70 hover:text-white">
                     ← back
                 </Link>
                 {route && (
-                    <div className="text-right">
-                        <p className="text-xs uppercase tracking-[0.3em] text-white/50">
-                            Your route
-                        </p>
-                        <h1 className="text-xl font-bold">{route.skill}</h1>
-                        <p className="text-xs text-white/50">
-                            {route.estimatedHours} hour climb · {route.route.length} waypoints
-                        </p>
+                    <div className="flex items-center justify-end gap-4 text-right">
+                        <div
+                            className="rounded-lg border border-white/20 bg-black/25 px-3 py-2 text-white shadow-lg backdrop-blur-sm"
+                            aria-label={`${loginStreak.count} day login streak`}
+                        >
+                            <p className="text-[0.65rem] uppercase tracking-[0.24em] text-white/50">
+                                Streak
+                            </p>
+                            <p className="text-lg font-bold leading-tight">
+                                {loginStreak.count} day{loginStreak.count === 1 ? "" : "s"}
+                            </p>
+                        </div>
+                        <div>
+                            <p className="text-xs uppercase tracking-[0.3em] text-white/50">
+                                Your route
+                            </p>
+                            <h1 className="text-xl font-bold">{route.skill}</h1>
+                            <p className="text-xs text-white/50">
+                                {route.estimatedHours} hour climb · {route.route.length} waypoints
+                            </p>
+                        </div>
                     </div>
                 )}
             </header>
@@ -259,6 +532,56 @@ function MountainPage() {
                     <Link to="/" className="rounded px-4 py-2 bg-white text-black font-bold">
                         Try again
                     </Link>
+                </div>
+            )}
+
+            {showEndgame && (
+                <div className="endgame-scene">
+                    <div className="endgame-stars">
+                        <StarField mode="ascent" />
+                    </div>
+                    <div className="endgame-copy">
+                        <div className="endgame-congrats">
+                            <span>Congrats on reaching the</span>
+                            <span className="peak-title endgame-peak" aria-label="PEAK">
+                                {"PEAK".split("").map((letter, i) => (
+                                    <span
+                                        key={letter}
+                                        className="peak-title-letter"
+                                        style={{ animationDelay: `${i * 0.12}s`, animationDuration: `${1.7 + i * 0.12}s` }}
+                                    >
+                                        {letter}
+                                    </span>
+                                ))}
+                            </span>
+                        </div>
+                        <p className="endgame-journey-text">Let's look at your journey...</p>
+                        <div className="endgame-stats" aria-label="Journey stats">
+                            <div>
+                                <span>Highest streak</span>
+                                <strong>{loginStreak.highestCount} day{loginStreak.highestCount === 1 ? "" : "s"}</strong>
+                            </div>
+                            <div>
+                                <span>Longest task time</span>
+                                <strong>{formatDuration(journeyStats.longestTaskMs)}</strong>
+                            </div>
+                            <div>
+                                <span>Shortest task time</span>
+                                <strong>{formatDuration(journeyStats.shortestTaskMs)}</strong>
+                            </div>
+                            <div>
+                                <span>Total attempts</span>
+                                <strong>{journeyStats.totalAttempts}</strong>
+                            </div>
+                        </div>
+                        <div className="endgame-new-peak">
+                            <p>Climb a new peak</p>
+                            <SkillInput disabled={generatingNewPeak} onSubmit={climbNewPeak} />
+                            {newPeakStatus && (
+                                <span>{newPeakStatus}</span>
+                            )}
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

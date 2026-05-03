@@ -21,6 +21,7 @@ function App() {
           {/* routes that share the persistent sky */}
           <Route element={<Layout />}>
             <Route path='/mountain' element={<MountainPage />} />
+            <Route path='/endgame-simulator' element={<MountainPage simulateEndgame />} />
             <Route path='/detail' element={<WaypointDetail />} />
           </Route>
         </Routes>
