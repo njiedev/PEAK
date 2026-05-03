@@ -17,7 +17,7 @@ function SkillInput({ disabled = false, onSubmit }: SkillInputProps) {
 
     return (
     <>
-    <div className="flex w-full max-w-lg border border-white rounded px-4 py-2">
+    <div className="flex w-full max-w-lg border border-white text-center rounded px-4 py-2">
      <input 
      type="text" 
      placeholder="what do you want to learn?" 

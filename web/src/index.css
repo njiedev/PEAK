@@ -233,3 +233,89 @@
 .start-camera-pan .mountain-horizon {
   animation: mountain-horizon-in 2.5s ease-in-out both;
 }
+
+/* ---------- Campfire waypoint ---------- */
+
+@keyframes flame-flicker-outer {
+  0%, 100% { transform: scaleY(1) scaleX(1); }
+  25%      { transform: scaleY(1.07) scaleX(0.94); }
+  50%      { transform: scaleY(0.93) scaleX(1.05); }
+  75%      { transform: scaleY(1.05) scaleX(0.97); }
+}
+
+@keyframes flame-flicker-mid {
+  0%, 100% { transform: scaleY(1) translateY(0); }
+  33%      { transform: scaleY(1.10) translateY(-1px); }
+  66%      { transform: scaleY(0.90) translateY(1px); }
+}
+
+@keyframes flame-flicker-core {
+  0%, 100% { transform: scaleY(1) scaleX(1); }
+  40%      { transform: scaleY(1.16) scaleX(0.92); }
+  80%      { transform: scaleY(0.86) scaleX(1.08); }
+}
+
+@keyframes campfire-glow-pulse {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  50%      { transform: scale(1.10); opacity: 0.78; }
+}
+
+@keyframes campfire-ember-bob {
+  0%, 100% { transform: translateY(0);   opacity: 0.85; }
+  50%      { transform: translateY(-2px); opacity: 1; }
+}
+
+.campfire {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+  will-change: transform, opacity;
+}
+
+.campfire:hover { transform: scale(1.06); }
+.campfire:focus-visible { outline: 2px solid rgba(255, 200, 100, 0.7); outline-offset: 6px; border-radius: 9999px; }
+
+.campfire-glow {
+  position: absolute;
+  inset: -28%;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(2px);
+}
+
+.campfire-glow-anim {
+  animation: campfire-glow-pulse 2.4s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.campfire-flames .flame {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.campfire-flames-anim .flame-outer { animation: flame-flicker-outer 1.6s ease-in-out infinite; }
+.campfire-flames-anim .flame-mid   { animation: flame-flicker-mid   1.25s ease-in-out infinite; }
+.campfire-flames-anim .flame-core  { animation: flame-flicker-core  0.85s ease-in-out infinite; }
+
+.campfire-embers circle {
+  animation: campfire-ember-bob 1.8s ease-in-out infinite;
+}
+.campfire-embers circle:nth-child(2) { animation-delay: 0.5s; animation-duration: 2.1s; }
+.campfire-embers circle:nth-child(3) { animation-delay: 1.0s; animation-duration: 1.5s; }
+
+.campfire-label {
+  position: absolute;
+  bottom: -1.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
