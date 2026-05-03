@@ -6,6 +6,8 @@ import Waypoint from "../components/Waypoint"
 import mountainImg from "../assets/mountain.png"
 import { pickPosition } from "../lib/pathMath"
 import { useProgress } from "../lib/ProgressContext"
+import mountainImg from "../assets/mountain2.png"
+import SkyBackground from "../components/SkyBackground"
 
 type MountainLocationState = {
     skill?: string

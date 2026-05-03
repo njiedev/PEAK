@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { generateRoute } from "../api"
 import SkillInput from "../components/SkillInput"
 import StarField from "../components/Starfield";
+import Title from "../components/Title";
 
 const PAN_DURATION_MS = 2500
 
