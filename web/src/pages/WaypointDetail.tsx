@@ -1,13 +1,15 @@
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { useState } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
+import { useRef, useState, type ChangeEvent } from "react"
 import Waypoint from "../components/Waypoint"
 import type { Waypoint as WaypointData } from "../../../shared/schema"
+import mountainImg from "../assets/mountain.png"
 
 type DetailLocationState = {
   waypoint?: WaypointData
   index?: number
   total?: number
   skill?: string
+  focus?: { x: number; y: number }
 }
 
 const FALLBACK = {
@@ -37,13 +39,45 @@ function WaypointDetail() {
   const wp = state?.waypoint ?? FALLBACK
   const index = state?.index ?? 0
   const total = state?.total ?? 8
+  const focus = state?.focus ?? { x: 0.5, y: 0.5 }
   const status = STATUS_META["not_completed"]
 
   const [submission, setSubmission] = useState("")
+  const [file, setFile] = useState<File | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
+  const challengeType = wp.challenge.type
+  const isFileChallenge = challengeType === "photo" || challengeType === "code" || challengeType === "pdf"
+
+  const FILE_META: Record<"photo" | "code" | "pdf", { label: string; cta: string; accept: string; hint: string }> = {
+    photo: {
+      label: "Upload a photo",
+      cta: "Choose a photo",
+      accept: "image/*",
+      hint: "PNG, JPG, or HEIC — a clear shot of your work.",
+    },
+    code: {
+      label: "Upload your code",
+      cta: "Choose a code file",
+      accept: ".js,.ts,.tsx,.jsx,.py,.java,.c,.cpp,.cs,.rb,.go,.rs,.html,.css,.json,.md,.txt,.zip",
+      hint: "A single source file or a .zip of your project.",
+    },
+    pdf: {
+      label: "Upload a PDF",
+      cta: "Choose a PDF",
+      accept: "application/pdf,.pdf",
+      hint: "Export your work as a PDF and attach it here.",
+    },
+  }
+
+  function handleFile(e: ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0] ?? null
+    setFile(f)
+  }
+
   function handleSubmit() {
-    if (!submission.trim() || submitting) return
+    if (submitting) return
+    if (isFileChallenge ? !file : !submission.trim()) return
     setSubmitting(true)
     setTimeout(() => setSubmitting(false), 1200)
   }
@@ -55,26 +89,37 @@ function WaypointDetail() {
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden text-white bg-[#0a0a0f]">
-      {/* atmospheric backdrop — placeholder for the mountain */}
+      {/* zooming stage — mountain + campfire grow together as one motion */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 detail-zoom-stage"
+        style={{ transformOrigin: `${focus.x * 100}% ${focus.y * 100}%` }}
+      >
+        <img
+          src={mountainImg}
+          alt=""
+          draggable={false}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        {/* the campfire, anchored at the focus point so it zooms with the mountain */}
+        <div
+          className="absolute -translate-x-1/2 -translate-y-1/2"
+          style={{ left: `${focus.x * 100}%`, top: `${focus.y * 100}%` }}
+        >
+          <Waypoint state="active" size={110} />
+        </div>
+      </div>
+
+      {/* darken once we've arrived, so text reads */}
+      <div
+        className="pointer-events-none absolute inset-0 detail-darken"
         style={{
           background:
-            "radial-gradient(ellipse at 30% 60%, rgba(120, 60, 30, 0.45) 0%, rgba(0,0,0,0) 55%), radial-gradient(ellipse at 80% 30%, rgba(40, 60, 110, 0.35) 0%, rgba(0,0,0,0) 60%), linear-gradient(to bottom, #07070d 0%, #0c0a14 60%, #050308 100%)",
-        }}
-      />
-      {/* faint silhouette */}
-      <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[55vh]"
-        style={{
-          background:
-            "linear-gradient(135deg, transparent 0 32%, #1a1d2a 32% 46%, transparent 46%), linear-gradient(45deg, transparent 0 38%, #232735 38% 54%, transparent 54%), linear-gradient(to top, #0a0a14 0%, rgba(10,10,20,0) 100%)",
-          opacity: 0.7,
+            "radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.65) 70%, rgba(0,0,0,0.85) 100%)",
         }}
       />
 
       {/* top bar */}
-      <header className="relative z-20 flex items-center justify-between px-10 py-6">
+      <header className="relative z-20 flex items-center justify-between px-10 py-6 detail-content-in">
         <button
           type="button"
           onClick={goBack}
@@ -88,53 +133,34 @@ function WaypointDetail() {
       </header>
 
       {/* main split */}
-      <main className="relative z-10 mx-auto flex max-w-7xl items-center gap-12 px-10 pb-16">
-        {/* LEFT — campfire + title */}
-        <section className="flex flex-1 flex-col items-center gap-8 pt-8">
+      <main className="relative z-10 mx-auto flex max-w-7xl items-start gap-12 px-10 pb-16 detail-content-in">
+        {/* LEFT — title + meta (campfire is the zoomed background element) */}
+        <section className="flex flex-1 flex-col gap-6 pt-12">
           <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-amber-200/70">
             <span className="h-px w-8 bg-amber-200/40" />
             Base camp
-            <span className="h-px w-8 bg-amber-200/40" />
           </div>
-
-          <div className="relative">
-            <Waypoint state="active" size={260} />
-          </div>
-
-          <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight">{wp.title}</h1>
-            <div className="mt-3 flex items-center justify-center gap-4 text-sm text-white/50">
-              <span className="inline-flex items-center gap-1.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <span
-                    key={i}
-                    className={`h-1.5 w-4 rounded-full ${
-                      i < wp.difficulty ? "bg-amber-300" : "bg-white/15"
-                    }`}
-                  />
-                ))}
-                <span className="ml-2">difficulty</span>
-              </span>
-              <span className="h-3 w-px bg-white/20" />
-              <span>{wp.challenge.type === "photo" ? "photo" : "text"} challenge</span>
-            </div>
+          <h1 className="text-5xl font-bold tracking-tight">{wp.title}</h1>
+          <div className="flex items-center gap-4 text-sm text-white/60">
+            <span className="inline-flex items-center gap-1.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <span
+                  key={i}
+                  className={`h-1.5 w-4 rounded-full ${
+                    i < wp.difficulty ? "bg-amber-300" : "bg-white/15"
+                  }`}
+                />
+              ))}
+              <span className="ml-2">difficulty</span>
+            </span>
+            <span className="h-3 w-px bg-white/20" />
+            <span>{challengeType} challenge</span>
           </div>
         </section>
 
-        {/* RIGHT — glass panel */}
-        <section className="relative flex-1">
-          <div
-            className="relative rounded-2xl border border-white/10 p-8 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)]"
-            style={{
-              background:
-                "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)",
-              backdropFilter: "blur(14px)",
-              WebkitBackdropFilter: "blur(14px)",
-            }}
-          >
-            {/* subtle highlight on the top edge */}
-            <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-
+        {/* RIGHT — content blends into the mountain */}
+        <section className="relative flex-1 pt-12">
+          <div className="relative">
             {/* status */}
             <div className="mb-6 flex items-center justify-between">
               <span className="text-[0.7rem] uppercase tracking-[0.3em] text-white/40">
@@ -163,22 +189,31 @@ function WaypointDetail() {
             {/* submission */}
             <div>
               <h3 className="text-[0.7rem] uppercase tracking-[0.3em] text-white/40 mb-3">
-                Your answer
+                {isFileChallenge ? FILE_META[challengeType as "photo" | "code" | "pdf"].label : "Your answer"}
               </h3>
-              <textarea
-                value={submission}
-                onChange={(e) => setSubmission(e.target.value)}
-                placeholder="Tell the guide what you did..."
-                rows={4}
-                className="w-full resize-none rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-amber-200/40 focus:outline-none focus:ring-2 focus:ring-amber-200/20 transition-colors"
-              />
+              {isFileChallenge ? (
+                <FileDrop
+                  meta={FILE_META[challengeType as "photo" | "code" | "pdf"]}
+                  file={file}
+                  onChange={handleFile}
+                  onClear={() => setFile(null)}
+                />
+              ) : (
+                <textarea
+                  value={submission}
+                  onChange={(e) => setSubmission(e.target.value)}
+                  placeholder="Tell the guide what you did..."
+                  rows={4}
+                  className="w-full resize-none rounded-lg border border-white/10 bg-black/30 px-4 py-3 text-sm text-white placeholder:text-white/30 focus:border-amber-200/40 focus:outline-none focus:ring-2 focus:ring-amber-200/20 transition-colors"
+                />
+              )}
             </div>
 
             {/* big submit */}
             <button
               type="button"
               onClick={handleSubmit}
-              disabled={!submission.trim() || submitting}
+              disabled={(isFileChallenge ? !file : !submission.trim()) || submitting}
               className="group relative mt-5 w-full overflow-hidden rounded-xl border border-amber-300/30 px-6 py-4 text-base font-semibold tracking-wide text-amber-50 transition-all hover:border-amber-300/60 hover:shadow-[0_0_40px_-5px_rgba(255,180,80,0.5)] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:shadow-none"
               style={{
                 background:
@@ -199,6 +234,64 @@ function WaypointDetail() {
           </div>
         </section>
       </main>
+    </div>
+  )
+}
+
+type FileDropProps = {
+  meta: { label: string; cta: string; accept: string; hint: string }
+  file: File | null
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void
+  onClear: () => void
+}
+
+function FileDrop({ meta, file, onChange, onClear }: FileDropProps) {
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  return (
+    <div className="rounded-lg border border-dashed border-white/15 bg-black/30 px-4 py-5">
+      <input
+        ref={inputRef}
+        type="file"
+        accept={meta.accept}
+        onChange={onChange}
+        className="hidden"
+      />
+      {file ? (
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="truncate text-sm text-white">{file.name}</p>
+            <p className="text-xs text-white/40">{(file.size / 1024).toFixed(1)} KB</p>
+          </div>
+          <div className="flex shrink-0 gap-2">
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              className="rounded-md border border-white/15 px-3 py-1.5 text-xs text-white/80 hover:border-white/40 hover:text-white"
+            >
+              Replace
+            </button>
+            <button
+              type="button"
+              onClick={onClear}
+              className="rounded-md border border-white/10 px-3 py-1.5 text-xs text-white/60 hover:text-white"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-col items-start gap-2">
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="inline-flex items-center gap-2 rounded-md border border-amber-300/30 bg-amber-300/10 px-4 py-2 text-sm font-medium text-amber-100 hover:border-amber-300/60 hover:bg-amber-300/15"
+          >
+            <span aria-hidden>＋</span> {meta.cta}
+          </button>
+          <p className="text-xs text-white/40">{meta.hint}</p>
+        </div>
+      )}
     </div>
   )
 }

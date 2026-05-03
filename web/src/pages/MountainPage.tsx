@@ -75,12 +75,14 @@ function MountainPage() {
     }, [skill, initialRoute])
 
     function openWaypoint(waypoint: WaypointData, index: number) {
+        const pos = pickPosition(index, route?.route.length ?? 1)
         navigate("/detail", {
             state: {
                 waypoint,
                 index,
                 total: route?.route.length,
                 skill: route?.skill,
+                focus: pos,
             },
         })
     }
@@ -116,6 +118,29 @@ function MountainPage() {
                         "radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.45) 100%)",
                 }}
             />
+            {route && (
+                <div className="absolute inset-0 z-10">
+                    {route.route.map((wp, i) => {
+                        const pos = pickPosition(i, route.route.length)
+                        const state =
+                            i < activeIndex ? "completed" :
+                            i === activeIndex ? "active" : "far"
+                        return (
+                            <div
+                                key={wp.id}
+                                className="absolute -translate-x-1/2 -translate-y-1/2"
+                                style={{ left: `${pos.x * 100}%`, top: `${pos.y * 100}%` }}
+                            >
+                                <Waypoint
+                                    state={state}
+                                    size={state === "active" ? 110 : 80}
+                                    onClick={() => openWaypoint(wp, i)}
+                                />
+                            </div>
+                        )
+                    })}
+                </div>
+            )}
 
             {/* header */}
             <header className="relative z-20 flex items-center justify-between px-8 py-5">
@@ -153,30 +178,6 @@ function MountainPage() {
                 </div>
             )}
 
-            {/* waypoints layer */}
-            {route && (
-                <div className="absolute inset-0 z-10">
-                    {route.route.map((wp, i) => {
-                        const pos = pickPosition(i, route.route.length)
-                        const state =
-                            i < activeIndex ? "completed" :
-                            i === activeIndex ? "active" : "far"
-                        return (
-                            <div
-                                key={wp.id}
-                                className="absolute -translate-x-1/2 -translate-y-1/2"
-                                style={{ left: `${pos.x * 100}%`, top: `${pos.y * 100}%` }}
-                            >
-                                <Waypoint
-                                    state={state}
-                                    size={state === "active" ? 110 : 80}
-                                    onClick={() => openWaypoint(wp, i)}
-                                />
-                            </div>
-                        )
-                    })}
-                </div>
-            )}
         </div>
     )
 }
