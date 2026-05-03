@@ -1,0 +1,150 @@
+{
+  "skill": "learn chess",
+  "estimatedHours": 18,
+  "route": [
+    {
+      "id": 1,
+      "title": "Set Up Your First Board",
+      "summary": "Learn where each piece goes at the start of a chess game. The board has 64 squares and each piece has its own home spot.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Set up a real chess board or draw one on paper with all 16 pieces on each side in their starting positions. Take a photo showing the whole board."
+      },
+      "difficulty": 1,
+      "x": 0.5,
+      "y": 0.92
+    },
+    {
+      "id": 2,
+      "title": "Move Like a Pawn",
+      "summary": "Pawns move forward one square at a time, but on their first move they can jump two squares. They capture diagonally, not straight ahead.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Start with pawns on their home squares. Write down three legal pawn moves you could make (like 'pawn from e2 to e4'). Then explain why a pawn CANNOT move backwards."
+      },
+      "difficulty": 1,
+      "x": 0.7851863552196594,
+      "y": 0.8436363636363636
+    },
+    {
+      "id": 3,
+      "title": "Command Your Rooks and Bishops",
+      "summary": "Rooks slide up-down or left-right any number of squares. Bishops slide diagonally any number of squares. They can't jump over pieces.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "On a board, place one rook and one bishop. Use coins or paper to mark ALL the squares each piece can move to. Take a photo and circle which squares the bishop can reach that the rook cannot."
+      },
+      "difficulty": 2,
+      "x": 0.7587188492222688,
+      "y": 0.7672727272727273
+    },
+    {
+      "id": 4,
+      "title": "Master the Knight's L-Jump",
+      "summary": "Knights move in an L-shape: two squares in one direction, then one square perpendicular. They're the only piece that can jump over others.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Place a knight on the center of the board (d4 or e4). List all eight squares it can jump to. Then explain in your own words why a knight on a white square always lands on a black square next."
+      },
+      "difficulty": 2,
+      "x": 0.4495213778741604,
+      "y": 0.6909090909090909
+    },
+    {
+      "id": 5,
+      "title": "Protect Your King and Use Your Queen",
+      "summary": "The king moves one square in any direction. The queen moves any number of squares in any direction (like a rook and bishop combined). Your king can never move into danger.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Set up a position with your king, your queen, and three enemy pawns. Show a photo where your queen is protecting your king from an attack. Draw arrows showing how your queen blocks the danger."
+      },
+      "difficulty": 2,
+      "x": 0.1954873363553548,
+      "y": 0.6145454545454545
+    },
+    {
+      "id": 6,
+      "title": "Deliver Checkmate in One Move",
+      "summary": "Checkmate means the enemy king is attacked and has no escape. The game ends immediately. You need to trap the king so it can't move to safety.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Create three different board positions where you can checkmate the enemy king in just one move. Take photos of all three setups and circle which piece delivers checkmate in each."
+      },
+      "difficulty": 3,
+      "x": 0.2742270958174746,
+      "y": 0.5381818181818183
+    },
+    {
+      "id": 7,
+      "title": "Castle Your King to Safety",
+      "summary": "Castling is a special move where your king slides two squares toward a rook, and the rook hops over to the other side. You can only do it if neither piece has moved yet and there's nothing between them.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Explain the three rules that must be true before you can castle. Then describe a situation where castling would be a smart move to protect your king from danger."
+      },
+      "difficulty": 3,
+      "x": 0.5996932363242812,
+      "y": 0.4618181818181819
+    },
+    {
+      "id": 8,
+      "title": "Win Material Through Captures",
+      "summary": "Each piece has a value: pawn=1, knight=3, bishop=3, rook=5, queen=9. Trading a knight for a rook is good because you gain 2 points of material.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Play or set up a position where you can capture an enemy rook by sacrificing only a pawn or bishop. Explain why this trade helps you win, using the point values."
+      },
+      "difficulty": 3,
+      "x": 0.8162138348406401,
+      "y": 0.3854545454545455
+    },
+    {
+      "id": 9,
+      "title": "Control the Center Four Squares",
+      "summary": "The four center squares (d4, e4, d5, e5) are the most important territory. Pieces in the center can reach more of the board and control the game.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Play the first 4 moves of a game (you and a friend or computer) where you fight for control of the center. Take a photo and write down which pieces you used and why controlling the center gives you an advantage."
+      },
+      "difficulty": 4,
+      "x": 0.6871735017253637,
+      "y": 0.3090909090909091
+    },
+    {
+      "id": 10,
+      "title": "Solve a Two-Move Checkmate Puzzle",
+      "summary": "Advanced checkmates require setting up a trap first. You make one move to force the enemy into a bad spot, then checkmate on your second move.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Find a two-move checkmate puzzle online or in a book. Write down the position (where each piece is), then explain both moves: what you do first and why it forces checkmate on move two."
+      },
+      "difficulty": 4,
+      "x": 0.35358851399189717,
+      "y": 0.23272727272727278
+    },
+    {
+      "id": 11,
+      "title": "Play Your First Full Game",
+      "summary": "Put everything together: opening moves to control the center, protect your king, develop your pieces, and hunt for checkmate or win material.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Play a complete game against a friend, family member, or computer (easy mode). Take a photo of the final position. Write 3-5 sentences about what you did well and one mistake you made."
+      },
+      "difficulty": 4,
+      "x": 0.18000313390377487,
+      "y": 0.15636363636363648
+    },
+    {
+      "id": 12,
+      "title": "Analyze and Improve Your Strategy",
+      "summary": "Good chess players review their games to find better moves. Look for moments where you could have won material, avoided danger, or checkmated faster.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Replay your game from waypoint 11 or play a new one. Pick three moments where you made a choice. For each, explain what you did and what you could have done better. Show you understand why one move is stronger than another."
+      },
+      "difficulty": 5,
+      "x": 0.356112811348928,
+      "y": 0.08000000000000007
+    }
+  ]
+}
