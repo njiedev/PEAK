@@ -12,8 +12,12 @@ function InputPage() {
 
     return (
         <>
-        <div className="relative w-full h-screen bg-black overflow-hidden flex items-center justify-center">
+        <div className="relative flex flex-col w-full h-screen bg-black overflow-hidden items-center justify-center gap-5">
             <StarField></StarField>
+            <h1 className='text-9xl font-bold text-white'>PEAK</h1>
+            <p
+            className="text-white"
+            >this is what peak is about</p>
             <div className="relative z-10 w-full max-w-lg px-4">
                 <SkillInput></SkillInput>
             </div>
