@@ -398,7 +398,7 @@ function WaypointDetail() {
 
             {/* submission */}
             <div className={isLocked ? "pointer-events-none opacity-50" : ""}>
-              <h3 className="text-[0.7rem] uppercase tracking-[0.3em] text-white/40 mb-3">
+              <h3 className="waypoint-submission-label">
                 {isFileChallenge ? FILE_META[challengeType as "photo" | "code" | "pdf"].label : "Your answer"}
               </h3>
               {isFileChallenge ? (
@@ -523,7 +523,7 @@ function FileDrop({ meta, file, onChange, onClear, disabled }: FileDropProps) {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-start gap-2">
+        <div className="flex flex-col items-center gap-2 text-center">
           <button
             type="button"
             onClick={() => !disabled && inputRef.current?.click()}

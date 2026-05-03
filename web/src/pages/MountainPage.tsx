@@ -353,6 +353,13 @@ function MountainPage({ simulateEndgame = false }: MountainPageProps) {
                 />
             )}
 
+            {route && !showEndgame && (
+                <div className="mountain-route-sign" aria-label={`Mt. Peak, ${route.skill}`}>
+                    <p>Mt. Peak</p>
+                    <h2>{route.skill}</h2>
+                </div>
+            )}
+
             {/* trail + waypoints layer */}
             {route && (() => {
                 const positions = route.route.map((_, i) => pickPosition(i, route.route.length))
@@ -492,27 +499,13 @@ function MountainPage({ simulateEndgame = false }: MountainPageProps) {
                     ← back
                 </Link>
                 {route && (
-                    <div className="flex items-center justify-end gap-4 text-right">
-                        <div
-                            className="rounded-lg border border-white/20 bg-black/25 px-3 py-2 text-white shadow-lg backdrop-blur-sm"
-                            aria-label={`${loginStreak.count} day login streak`}
-                        >
-                            <p className="text-[0.65rem] uppercase tracking-[0.24em] text-white/50">
-                                Streak
-                            </p>
-                            <p className="text-lg font-bold leading-tight">
-                                {loginStreak.count} day{loginStreak.count === 1 ? "" : "s"}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-xs uppercase tracking-[0.3em] text-white/50">
-                                Your route
-                            </p>
-                            <h1 className="text-xl font-bold">{route.skill}</h1>
-                            <p className="text-xs text-white/50">
-                                {route.estimatedHours} hour climb · {route.route.length} waypoints
-                            </p>
-                        </div>
+                    <div
+                        className="mountain-streak-fire"
+                        aria-label={`${loginStreak.count} day login streak`}
+                        title={`${loginStreak.count} day login streak`}
+                    >
+                        <span aria-hidden="true">🔥</span>
+                        <strong>{loginStreak.count}</strong>
                     </div>
                 )}
             </header>

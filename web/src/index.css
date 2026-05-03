@@ -517,6 +517,151 @@
   animation: mountain-reveal-chrome 4.8s ease-out both;
 }
 
+/* ---------- Mountain route signs ---------- */
+
+@keyframes streak-fire-live {
+  0%, 100% {
+    transform: translateY(0) scale(1) rotate(-2deg);
+    filter: drop-shadow(0 0 8px rgba(255, 129, 38, 0.45));
+  }
+  45% {
+    transform: translateY(-1px) scale(1.06) rotate(2deg);
+    filter: drop-shadow(0 0 14px rgba(255, 183, 66, 0.7));
+  }
+  70% {
+    transform: translateY(0) scale(0.98) rotate(-1deg);
+  }
+}
+
+.mountain-streak-fire {
+  position: relative;
+  width: 3.25rem;
+  height: 3.25rem;
+  display: grid;
+  place-items: center;
+  color: white;
+  text-align: center;
+}
+
+.mountain-streak-fire span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 3rem;
+  line-height: 1;
+  animation: streak-fire-live 1.25s ease-in-out infinite;
+  transform-origin: 50% 75%;
+}
+
+.mountain-streak-fire strong {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.24rem;
+  min-width: 1.35rem;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow:
+    0 1px 2px rgba(70, 20, 0, 0.9),
+    0 0 5px rgba(0, 0, 0, 0.72);
+}
+
+.mountain-route-sign {
+  position: absolute;
+  right: clamp(1rem, 4vw, 3.25rem);
+  top: 55%;
+  z-index: 12;
+  width: min(18.5rem, 30vw);
+  min-height: 9.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 1.15rem 1.35rem 1.45rem;
+  border: 2px solid rgba(66, 35, 14, 0.96);
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse at 0% 18%, rgba(48, 24, 9, 0.52) 0 5%, transparent 6%),
+    radial-gradient(ellipse at 100% 74%, rgba(48, 24, 9, 0.56) 0 5%, transparent 6%),
+    linear-gradient(180deg, rgba(151, 93, 44, 0.98), rgba(94, 53, 24, 0.99)),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 224, 151, 0.12) 0,
+      rgba(255, 224, 151, 0.12) 2px,
+      rgba(91, 48, 19, 0.18) 2px,
+      rgba(91, 48, 19, 0.18) 2.25rem,
+      rgba(43, 20, 7, 0.56) 2.25rem,
+      rgba(43, 20, 7, 0.56) 2.55rem,
+      rgba(255, 223, 154, 0.1) 2.55rem,
+      rgba(255, 223, 154, 0.1) 4.8rem
+    );
+  box-shadow:
+    inset 0 5px rgba(255, 221, 153, 0.22),
+    inset 0 -18px 32px rgba(35, 15, 5, 0.34),
+    inset 14px 0 24px rgba(45, 20, 7, 0.2),
+    inset -14px 0 24px rgba(45, 20, 7, 0.2),
+    0 16px 30px rgba(0, 0, 0, 0.38);
+  color: #fff0ca;
+  pointer-events: none;
+  text-align: center;
+  text-shadow: 0 2px 2px rgba(38, 17, 5, 0.72);
+  transform: rotate(1.8deg);
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.42));
+}
+
+.mountain-route-sign::after {
+  content: "";
+  position: absolute;
+  left: 16%;
+  right: 16%;
+  top: 100%;
+  height: 10rem;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, transparent 0 17%, rgba(48, 25, 10, 0.99) 17% 29%, transparent 29% 71%, rgba(48, 25, 10, 0.99) 71% 83%, transparent 83%),
+    linear-gradient(90deg, transparent 0 18%, rgba(126, 77, 36, 0.62) 18% 22%, transparent 22% 71%, rgba(126, 77, 36, 0.62) 71% 75%, transparent 75%);
+}
+
+.mountain-route-sign p {
+  color: rgba(255, 221, 158, 0.82);
+  font-size: clamp(0.58rem, 0.85vw, 0.78rem);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.mountain-route-sign h2 {
+  display: -webkit-box;
+  max-height: 5.8rem;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  color: #fff7df;
+  font-size: clamp(1rem, 1.7vw, 1.55rem);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1.02;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .mountain-route-sign {
+    right: 0.75rem;
+    top: 58%;
+    width: min(12.5rem, 42vw);
+    min-height: 7.8rem;
+    padding: 0.9rem 0.95rem 1.05rem;
+  }
+
+  .mountain-route-sign h2 {
+    max-height: 4.6rem;
+    -webkit-line-clamp: 4;
+  }
+}
+
 .endgame-mountain-stage {
   animation: endgame-mountain-flight 7s cubic-bezier(0.3, 0, 0.1, 1) both;
   transform-origin: center 18%;
@@ -1026,6 +1171,19 @@
   height: 2px;
   margin: 1.75rem 0;
   background: linear-gradient(90deg, transparent, rgba(62, 31, 10, 0.55), rgba(238, 178, 95, 0.22), rgba(62, 31, 10, 0.55), transparent);
+}
+
+.waypoint-submission-label {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.75rem;
+  color: rgba(255, 238, 202, 0.56);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  line-height: 1.2;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 .waypoint-answer {
