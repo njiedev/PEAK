@@ -523,9 +523,8 @@
 .stars {
   position: absolute;
   inset: 0;
-  opacity: 0;
   pointer-events: none;
-  animation: starsFade 40s ease-in-out infinite;
+  transition: opacity 3s ease;
   will-change: opacity;
 }
 
@@ -568,8 +567,6 @@
 }
 
 .stars-far {
-  opacity: 0;
-  animation-delay: 0.2s;
 }
 
 .stars-far::before {
@@ -609,6 +606,14 @@
   animation-duration: 4.6s;
 }
 
+.stars-visible {
+  opacity: 0.85;
+}
+
+.stars-hidden {
+  opacity: 0;
+}
+
 .sky-orb {
   position: absolute;
   width: 7rem;
@@ -622,14 +627,14 @@
   background: rgba(253, 224, 71, 0.82);
   box-shadow: 0 0 90px rgba(255, 220, 80, 0.9);
   filter: blur(5px);
-  animation: sunCycle 40s ease-in-out infinite;
+  transition: opacity 3s ease, transform 3s ease;
 }
 
 .sky-moon {
   background:
     radial-gradient(circle at 38% 34%, rgba(255, 255, 255, 0.98), rgba(226, 232, 240, 0.96) 58%, rgba(203, 213, 225, 0.9) 100%);
   box-shadow: 0 0 58px rgba(191, 219, 254, 0.64);
-  animation: moonCycle 40s ease-in-out infinite;
+  transition: opacity 3s ease, transform 3s ease;
 }
 
 .sky-moon::after {

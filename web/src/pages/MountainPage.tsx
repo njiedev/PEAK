@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 import { generateRoute } from "../api"
 import type { Route, Waypoint as WaypointData } from "../../../shared/schema"
 import Waypoint from "../components/Waypoint"
-import mountainImg from "../assets/mountain.png"
 import { pickPosition } from "../lib/pathMath"
 import { useProgress } from "../lib/ProgressContext"
 import mountainImg from "../assets/mountain2.png"
@@ -125,6 +124,7 @@ function MountainPage() {
 
     return (
         <div className="relative w-full min-h-screen overflow-hidden bg-[#0a0a0f] text-white">
+            <SkyBackground></SkyBackground>
             {/* mountain background */}
             <img
                 src={mountainImg}
