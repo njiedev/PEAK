@@ -1,15 +1,18 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
-function SkillInput() {
+type SkillInputProps = {
+    disabled?: boolean
+    onSubmit?: (skill: string) => void
+}
+
+function SkillInput({ disabled = false, onSubmit }: SkillInputProps) {
     const [skill, setSkill] = useState("")
-    const navigate = useNavigate()
 
     function handleSubmit() {
         const trimmedSkill = skill.trim()
-        if (!trimmedSkill) return
+        if (!trimmedSkill || disabled) return
 
-        navigate("/mountain", { state: { skill: trimmedSkill } })
+        onSubmit?.(trimmedSkill)
     }
 
     return (
@@ -19,6 +22,7 @@ function SkillInput() {
      type="text" 
      placeholder="what do you want to learn?" 
      value={skill}
+     disabled={disabled}
      onChange={(e) => setSkill(e.target.value)}
      onKeyDown={(e) => {
         if (e.key === "Enter") handleSubmit()
@@ -26,7 +30,8 @@ function SkillInput() {
      className="w-full bg-transparent text-white outline-none" />
      <button
      onClick={handleSubmit}
-     className="rounded-full w-8 h-8 bg-gray-500 text-sm flex items-center justify-center text-white">
+     disabled={disabled}
+     className="rounded-full w-8 h-8 bg-gray-500 text-sm flex items-center justify-center text-white disabled:opacity-50">
         →
      </button>
 
