@@ -5,17 +5,28 @@ import type { Route } from "../../../shared/schema"
 
 type MountainLocationState = {
     skill?: string
+    route?: Route
 }
 
 function MountainPage() {
     const location = useLocation()
-    const skill = (location.state as MountainLocationState | null)?.skill
-    const [route, setRoute] = useState<Route | null>(null)
+    const navigationState = location.state as MountainLocationState | null
+    const skill = navigationState?.skill
+    const initialRoute = navigationState?.route ?? null
+    const [route, setRoute] = useState<Route | null>(initialRoute)
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         if (!skill) {
             console.log("[mountain] no skill in navigation state")
+            return
+        }
+        if (initialRoute) {
+            console.log("[mountain] using generated route from start transition", {
+                skill: initialRoute.skill,
+                waypoints: initialRoute.route.length,
+            })
+            setRoute(initialRoute)
             return
         }
 
@@ -43,7 +54,7 @@ function MountainPage() {
             console.log("[mountain] route effect cleanup", { skill })
             isCurrent = false
         }
-    }, [skill])
+    }, [skill, initialRoute])
 
     if (!skill) {
         return (
@@ -58,13 +69,11 @@ function MountainPage() {
 
     return (
         <>
-        <div className="w-full min-h-screen bg-black text-white flex flex-col items-center justify-center gap-6 p-8">
-            {!route && !error && (
-                <p className="text-3xl font-bold">loading</p>
-            )}
+        <div className="relative w-full min-h-screen bg-black text-white flex flex-col items-center justify-center gap-6 p-8 overflow-hidden">
+            {!route && !error && <div className="relative z-10 text-3xl font-bold">loading</div>}
 
             {error && (
-                <div className="flex flex-col items-center gap-4 text-center">
+                <div className="relative z-10 flex flex-col items-center gap-4 text-center">
                     <p className="text-2xl font-bold">Something went wrong.</p>
                     <p className="max-w-lg text-white/75">{error}</p>
                     <Link to="/start" className="rounded px-4 py-2 bg-white text-black font-bold">
@@ -74,7 +83,7 @@ function MountainPage() {
             )}
 
             {route && (
-                <div className="w-full max-w-2xl">
+                <div className="relative z-10 w-full max-w-2xl route-results-enter">
                     <h1 className="text-4xl font-bold mb-2">{route.skill}</h1>
                     <p className="text-white/70 mb-6">{route.estimatedHours} hour route</p>
                     <ul className="space-y-3">

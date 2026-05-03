@@ -1,0 +1,150 @@
+{
+  "skill": "Build a smooth camera pan animation in React",
+  "estimatedHours": 18,
+  "route": [
+    {
+      "id": 1,
+      "title": "Make a box slide across the screen",
+      "summary": "Use framer-motion to animate a colored box moving from left to right when you click a button. This teaches you the basics of motion in React.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take a screenshot or screen recording showing a box that slides across the screen when you click a button. The box should move smoothly, not jump."
+      },
+      "difficulty": 1,
+      "x": 0.5,
+      "y": 0.92
+    },
+    {
+      "id": 2,
+      "title": "Freeze random stars in one spot",
+      "summary": "Generate 50 random stars (circles) once when the page loads and store them in useState. They should never change position unless you refresh the page.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Take two screenshots a few seconds apart showing the same exact stars in the same exact positions. Write a sentence explaining why useState keeps them frozen."
+      },
+      "difficulty": 2,
+      "x": 0.7851863552196594,
+      "y": 0.8436363636363636
+    },
+    {
+      "id": 3,
+      "title": "Move all the stars down together",
+      "summary": "Put all your stars inside a motion.div container. When you click a button, animate the entire container downward by 500 pixels over 2 seconds.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Record a short video or take before/after screenshots showing all the stars moving down smoothly as one group when you click the button."
+      },
+      "difficulty": 2,
+      "x": 0.7587188492222688,
+      "y": 0.7672727272727273
+    },
+    {
+      "id": 4,
+      "title": "Make text fly upward while stars go down",
+      "summary": "Add a title like PEAK at the top. When you click the button, the stars move down and the title moves up at the same time. They should move in opposite directions.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Show a video or screenshots proving the title moves upward while the stars move downward, both starting at the exact same moment."
+      },
+      "difficulty": 3,
+      "x": 0.4495213778741604,
+      "y": 0.6909090909090909
+    },
+    {
+      "id": 5,
+      "title": "Use the same timing for smooth motion",
+      "summary": "Set both animations to last exactly 2.5 seconds with easeInOut easing. This makes them feel connected, like a real camera move.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Paste the code where you set duration to 2.5 and ease to easeInOut for both the stars container and the title. Explain in one sentence why matching timing matters."
+      },
+      "difficulty": 2,
+      "x": 0.1954873363553548,
+      "y": 0.6145454545454545
+    },
+    {
+      "id": 6,
+      "title": "Make the title move faster than the stars",
+      "summary": "Change the title so it moves upward by 800 pixels while the stars only move down by 500 pixels. This creates depth, like the title is closer to the camera.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Show a video where the title clearly moves faster and farther than the stars, creating a layered effect."
+      },
+      "difficulty": 3,
+      "x": 0.2742270958174746,
+      "y": 0.5381818181818183
+    },
+    {
+      "id": 7,
+      "title": "Bring in loading text from below",
+      "summary": "Add text that says 'Generating your route...' positioned below the screen. When you click the button, animate it upward into the center while the other animations happen.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Record a video showing three things moving at once: stars down, title up, and loading text up from below. All should start together."
+      },
+      "difficulty": 3,
+      "x": 0.5996932363242812,
+      "y": 0.4618181818181819
+    },
+    {
+      "id": 8,
+      "title": "Add a mountain that appears at the bottom",
+      "summary": "Draw or place a simple mountain shape at the bottom of the screen. As the stars move down, the mountain should become visible, like the camera is descending toward it.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Show before and after: before the animation the mountain is barely visible or hidden, after the animation it's clearly in view at the bottom."
+      },
+      "difficulty": 3,
+      "x": 0.8162138348406401,
+      "y": 0.3854545454545455
+    },
+    {
+      "id": 9,
+      "title": "Test that stars never regenerate",
+      "summary": "Click the animation button 5 times in a row. The stars should stay in the exact same positions every single time, never flickering or changing.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Explain in 2-3 sentences how you know the stars are frozen. What part of your code prevents them from regenerating?"
+      },
+      "difficulty": 2,
+      "x": 0.6871735017253637,
+      "y": 0.3090909090909091
+    },
+    {
+      "id": 10,
+      "title": "Make the input box fly away with the title",
+      "summary": "Add a fake input box next to your title. Put both inside one motion.div wrapper so they fly upward together as a single unit.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Show a video where the title and input box move upward together, staying perfectly aligned the whole time."
+      },
+      "difficulty": 3,
+      "x": 0.35358851399189717,
+      "y": 0.23272727272727278
+    },
+    {
+      "id": 11,
+      "title": "Smooth out the entire camera pan",
+      "summary": "Adjust all your animation distances and timings so the whole sequence feels like one smooth camera move. The stars should translate by exactly one full screen height (100vh).",
+      "challenge": {
+        "type": "text",
+        "prompt": "Write a short description of what each element does during the animation: stars container, title/input wrapper, loading text, and mountain. Include the distance each one moves."
+      },
+      "difficulty": 4,
+      "x": 0.18000313390377487,
+      "y": 0.15636363636363648
+    },
+    {
+      "id": 12,
+      "title": "Build the full cinematic start screen",
+      "summary": "Combine everything into one polished animation: frozen starfield, camera pan down, title/input flying up and away, loading text entering from below, mountain revealed at the bottom. Make it feel like a real app.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Record a full video of the entire animation from start to finish. It should look smooth, cinematic, and professional. No flickers, no jumps, just one beautiful camera move."
+      },
+      "difficulty": 5,
+      "x": 0.356112811348928,
+      "y": 0.08000000000000007
+    }
+  ]
+}
