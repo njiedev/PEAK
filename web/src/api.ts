@@ -1,4 +1,4 @@
-import type { Route } from '../../shared/schema'
+import type { Route, Waypoint, Feedback } from '../../shared/schema'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
 
@@ -77,6 +77,39 @@ export async function generateRouteWithoutRequestCache(skill: string): Promise<R
   if (!response.ok || !json.ok) {
     throw new Error(json.ok ? 'route generation failed' : json.error)
   }
+
+  return json.data
+}
+
+export async function evaluateSubmission(
+  waypoint: Waypoint,
+  submission: { text?: string; imageBase64?: string; imageMime?: string }
+): Promise<Feedback> {
+  console.log('[api] evaluating submission', {
+    waypointId: waypoint.id,
+    type: waypoint.challenge.type,
+    hasText: !!submission.text,
+    hasImage: !!submission.imageBase64,
+    mime: submission.imageMime,
+  })
+
+  const response = await fetch(`${API_URL}/api/evaluate-submission`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ waypoint, submission }),
+  })
+
+  const json = (await response.json()) as ApiResponse<Feedback>
+
+  if (!response.ok || !json.ok) {
+    throw new Error(json.ok ? 'submission evaluation failed' : json.error)
+  }
+
+  console.log('[api] evaluation complete', {
+    passed: json.data.passed,
+  })
 
   return json.data
 }
