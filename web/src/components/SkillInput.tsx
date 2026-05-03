@@ -1,10 +1,15 @@
-import {useState} from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function SkillInput() {
     const [skill, setSkill] = useState("")
+    const navigate = useNavigate()
 
     function handleSubmit() {
-        console.log(skill)
+        const trimmedSkill = skill.trim()
+        if (!trimmedSkill) return
+
+        navigate("/mountain", { state: { skill: trimmedSkill } })
     }
 
     return (

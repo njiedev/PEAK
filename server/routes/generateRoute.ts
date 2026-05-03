@@ -17,7 +17,13 @@ router.post('/', async (req: Request, res: Response) => {
   }
 
   try {
-    const route = await generateRouteCached(parsed.data.skill.trim())
+    const skill = parsed.data.skill.trim()
+    console.log('[generate-route] start', { skill })
+    const route = await generateRouteCached(skill)
+    console.log('[generate-route] success', {
+      skill,
+      waypoints: route.route.length,
+    })
     res.json({ ok: true, data: route })
   } catch (err) {
     handleRouteError(res, err, 'route generation failed, please try again')
