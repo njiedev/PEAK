@@ -1,13 +1,52 @@
+import { useEffect, useState } from "react"
+
+
+function getSkyPhase(hour: number) {
+  if (hour >= 5 && hour < 8) {
+    return "sunrise"
+  }
+
+  if (hour >= 8 && hour < 17) {
+    return "day"
+  }
+
+  if (hour >= 17 && hour < 20) {
+    return "sunset"
+  }
+
+  return "night"
+}
+
+
+
+
 export default function SkyBackground() {
+
+    const [hour, setHour] = useState(new Date().getHours())
+    const skyPhase = getSkyPhase(hour)
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+        setHour(new Date().getHours())
+        }, 1000)
+
+        return () => clearInterval(interval)
+    }, [])
+
+    const isNight = hour < 5 || hour >= 20
+    const isDay = hour >= 5 && hour < 20
   return (
     <div className="absolute inset-0 overflow-hidden">
-      <div className="absolute inset-0 animate-sky bg-[linear-gradient(to_bottom,#3b82f6,#93c5fd,#fed7aa)]" />
+      <div className={`sky-layer bg-[linear-gradient(to_bottom,#fb923c,#fdba74,#fed7aa)] ${skyPhase === "sunrise" ? "sky-visible" : "sky-hidden"}`} />
+    <div className={`sky-layer bg-[linear-gradient(to_bottom,#3b82f6,#93c5fd,#bfdbfe)] ${skyPhase === "day" ? "sky-visible" : "sky-hidden"}`} />
+    <div className={`sky-layer bg-[linear-gradient(to_bottom,#312e81,#7c2d12,#fb923c)] ${skyPhase === "sunset" ? "sky-visible" : "sky-hidden"}`} />
+    <div className={`sky-layer bg-[linear-gradient(to_bottom,#0f172a,#1e293b,#334155)] ${skyPhase === "night" ? "sky-visible" : "sky-hidden"}`} />
 
-      <div className="stars stars-near" />
-      <div className="stars stars-far" />
+      <div className={`stars stars-near ${isNight ? "stars-visible" : "stars-hidden"}`} />
+      <div className={`stars stars-far ${isNight ? "stars-visible" : "stars-hidden"}`} />
 
-      <div className="sky-orb sky-sun top-16 right-24" />
-      <div className="sky-orb sky-moon top-16 right-24" />
+      <div className={`sky-orb sky-sun top-16 right-24 ${isDay ? "orb-visible" : "orb-hidden"}`} />
+      <div className={`sky-orb sky-moon top-16 right-24 ${isNight ? "orb-visible" : "orb-hidden"}`} />
 
       <div className="cloud cloud-1 top-24">
         <span className="cloud-shadow" />
