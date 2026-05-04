@@ -15,18 +15,7 @@ type MountainLocationState = {
     reveal?: boolean
 }
 
-type MountainPageProps = {
-    simulateEndgame?: boolean
-}
-
 const REVEAL_DURATION_MS = 7200
-const SUMMIT_DEMO_SKILLS = [
-    "i want to start a minecraft server",
-    "i want to start my own minecraft server",
-    "i want to learn how to start a minecraft server",
-    "i want to learn how to start my own minecraft server",
-    "i want to learn how to host my own minecraft server",
-]
 const LOGIN_STREAK_STORAGE_KEY = "peak_login_streak"
 const JOURNEY_STATS_STORAGE_KEY_PREFIX = "peak_journey_stats"
 const ENDGAME_SEEN_STORAGE_KEY_PREFIX = "peak_endgame_seen"
@@ -136,31 +125,6 @@ function routeStorageScope(value: string): string {
     return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "default"
 }
 
-function normalizeDemoSkill(value: string): string {
-    return value.trim().toLowerCase().replace(/\s+/g, " ")
-}
-
-function isSummitDemoSkill(value: string): boolean {
-    return SUMMIT_DEMO_SKILLS.includes(normalizeDemoSkill(value))
-}
-
-const ENDGAME_SIMULATOR_ROUTE: Route = {
-    skill: "endgame simulator",
-    estimatedHours: 8,
-    route: Array.from({ length: 8 }, (_, index) => ({
-        id: 9000 + index,
-        title: index === 7 ? "Reach the PEAK" : `Simulator waypoint ${index + 1}`,
-        summary: "A simulated waypoint for tuning the credits animation.",
-        challenge: {
-            type: "text",
-            prompt: "This waypoint is already complete in the simulator.",
-        },
-        difficulty: Math.min(5, index + 1) as 1 | 2 | 3 | 4 | 5,
-        x: 0,
-        y: 0,
-    })),
-}
-
 // Catmull-Rom → cubic bezier. Produces a smooth SVG path through every point.
 function smoothPath(pts: { x: number; y: number }[]): string {
     if (pts.length < 2) return ""
@@ -180,12 +144,12 @@ function smoothPath(pts: { x: number; y: number }[]): string {
     return d
 }
 
-function MountainPage({ simulateEndgame = false }: MountainPageProps) {
+function MountainPage() {
     const location = useLocation()
     const navigate = useNavigate()
     const navigationState = location.state as MountainLocationState | null
-    const skill = simulateEndgame ? ENDGAME_SIMULATOR_ROUTE.skill : navigationState?.skill
-    const initialRoute = simulateEndgame ? ENDGAME_SIMULATOR_ROUTE : navigationState?.route ?? null
+    const skill = navigationState?.skill
+    const initialRoute = navigationState?.route ?? null
     const [route, setRoute] = useState<Route | null>(initialRoute)
     const [error, setError] = useState<string | null>(null)
     const [revealing, setRevealing] = useState(Boolean(navigationState?.reveal && initialRoute))
@@ -196,7 +160,7 @@ function MountainPage({ simulateEndgame = false }: MountainPageProps) {
     const [newPeakStatus, setNewPeakStatus] = useState<string | null>(null)
     const hadCompletedRouteRef = useRef(false)
 
-    const { activeIndex, completedWaypoints, isCompleted, progressScope, setCompleted, setProgressScope } = useProgress()
+    const { activeIndex, completedWaypoints, isCompleted, progressScope, setProgressScope } = useProgress()
 
     useEffect(() => {
         window.localStorage.setItem(LOGIN_STREAK_STORAGE_KEY, JSON.stringify(loginStreak))
@@ -215,28 +179,13 @@ function MountainPage({ simulateEndgame = false }: MountainPageProps) {
 
     useEffect(() => {
         if (!route) return
-        if (simulateEndgame) return
         const nextScope = routeStorageScope(route.skill)
         hadCompletedRouteRef.current = false
         setShowEndgame(false)
         setGeneratingNewPeak(false)
         setNewPeakStatus(null)
         setProgressScope(nextScope)
-    }, [route, setProgressScope, simulateEndgame])
-
-    useEffect(() => {
-        if (!simulateEndgame) return
-        const simulatorScope = routeStorageScope(ENDGAME_SIMULATOR_ROUTE.skill)
-        setProgressScope(simulatorScope)
-        setCompleted(ENDGAME_SIMULATOR_ROUTE.route.map((waypoint) => waypoint.id))
-        setJourneyStats({
-            totalAttempts: 12,
-            longestTaskMs: 14 * 60 * 1000 + 22 * 1000,
-            shortestTaskMs: 48 * 1000,
-        })
-        hadCompletedRouteRef.current = false
-        setShowEndgame(true)
-    }, [setCompleted, setProgressScope, simulateEndgame])
+    }, [route, setProgressScope])
 
     useEffect(() => {
         if (!route) return
@@ -275,7 +224,6 @@ function MountainPage({ simulateEndgame = false }: MountainPageProps) {
     const isWaypointCompleted = (waypointId: number) => progressReady && isCompleted(waypointId)
 
     useEffect(() => {
-        if (simulateEndgame) return
         if (!skill) return
         if (initialRoute) {
             setRoute(initialRoute)
@@ -296,21 +244,7 @@ function MountainPage({ simulateEndgame = false }: MountainPageProps) {
             })
 
         return () => { isCurrent = false }
-    }, [skill, initialRoute, simulateEndgame])
-
-    useEffect(() => {
-        if (!route) return
-        if (!isSummitDemoSkill(route.skill)) return
-
-        const scope = routeStorageScope(route.skill)
-        window.localStorage.removeItem(endgameSeenKey(scope))
-        window.localStorage.setItem(journeyStatsKey(scope), JSON.stringify({
-            totalAttempts: 11,
-            longestTaskMs: 11 * 60 * 1000 + 38 * 1000,
-            shortestTaskMs: 52 * 1000,
-        }))
-        setCompleted(route.route.slice(0, -1).map((waypoint) => waypoint.id))
-    }, [route, setCompleted])
+    }, [skill, initialRoute])
 
     function openWaypoint(waypoint: WaypointData, index: number) {
         const pos = pickPosition(index, route?.route.length ?? 1)
