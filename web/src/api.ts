@@ -63,27 +63,9 @@ export async function generateRoute(skill: string): Promise<Route> {
   return request
 }
 
-export async function generateRouteWithoutRequestCache(skill: string): Promise<Route> {
-  const response = await fetch(`${API_URL}/api/generate-route`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ skill }),
-  })
-
-  const json = (await response.json()) as ApiResponse<Route>
-
-  if (!response.ok || !json.ok) {
-    throw new Error(json.ok ? 'route generation failed' : json.error)
-  }
-
-  return json.data
-}
-
 export async function evaluateSubmission(
   waypoint: Waypoint,
-  submission: { text?: string; imageBase64?: string; imageMime?: string }
+  submission: { text?: string; imageBase64?: string; imageMime?: string },
 ): Promise<Feedback> {
   console.log('[api] evaluating submission', {
     waypointId: waypoint.id,

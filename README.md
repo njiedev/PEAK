@@ -1,39 +1,116 @@
 # PEAK
 
-AI-generated interactive learning app for kids, built around a mountain climbing metaphor. BeaverHacks 2026.
+PEAK is an AI-generated learning app that turns a child's goal into an interactive climb up a mountain. A learner enters something they want to learn, PEAK generates a sequence of hands-on challenges, and each completed waypoint moves them higher toward the summit.
 
-## Structure
+The project started as a hackathon prototype and is being rebuilt into a portfolio-grade product focused on adaptive learning, visual progression, and a polished 2.5D mountain experience.
 
-- `shared/` — the JSON contract between all parts
-- `ai/` — Claude prompts and route generation (owned by Mohammed)
-- `server/` — Express API (owned by FS1)
-- `web/` — React frontend (owned by FS2)
+## Why It Is Interesting
 
-## Read first
+Most AI tutoring interfaces feel like chat logs or static lesson lists. PEAK explores a more spatial learning model: progress is visible, memorable, and emotionally tied to an expedition. The mountain is not just decoration; it is the interface for planning, motivation, and eventually adaptation.
 
-- `PRD.md` — full product context
-- `CLAUDE.md` — rules for AI sessions
-- `<folder>/CLAUDE.md` — per-role context
+The long-term goal is for the route itself to respond to the learner. If a child struggles, PEAK should generate a helpful detour from their current position instead of simply marking the answer wrong.
 
-## Demo cache
+## Current Features
 
-Run this before a live demo:
+- Skill input flow that generates a personalized learning route.
+- AI-authored waypoints with concrete challenges.
+- Mountain view with animated reveal, route trail, and clickable campfire waypoints.
+- Waypoint detail screen with text and file/photo submission support.
+- AI feedback and pass/fail evaluation for submissions.
+- Local progress tracking by route.
+- End-of-route celebration with basic journey stats.
+- File-backed route cache to avoid regenerating the same route repeatedly.
 
-```sh
-npm run demo:seed-cache
-```
+## Tech Stack
 
-That prewarms the exact demo skills listed in `ai/demoSkills.ts` into `ai/cache/`. The summit-animation demo input is:
+- **Frontend:** React, Vite, TypeScript, Tailwind CSS.
+- **Backend:** Node.js, Express, Zod request validation.
+- **AI:** Anthropic-powered route generation and submission evaluation.
+- **Shared contract:** TypeScript route, waypoint, challenge, and feedback types in `shared/`.
+- **Caching:** Local file-backed cache for generated routes in `ai/cache/`.
+
+## Architecture
 
 ```txt
-i want to start a minecraft server
+PEAK
+├── ai/       Prompting, route generation, validation, and feedback evaluation
+├── server/   Express API wrapping the AI layer
+├── shared/   TypeScript types shared across frontend, backend, and AI code
+└── web/      React app, mountain scene, waypoint UI, and submission flow
 ```
 
-That exact route is cached at `ai/cache/i-want-to-start-a-minecraft-server.json`. The frontend treats it as the summit demo route and marks every waypoint complete except the final one, whose challenge is `type abc`, so the last submit can trigger the reaching-the-summit animation predictably.
+The frontend calls the server through two primary endpoints:
 
-## Branches
+- `POST /api/generate-route` creates or retrieves a route for a skill.
+- `POST /api/evaluate-submission` evaluates a learner's answer for a waypoint.
 
-- `main` — only working code
-- `mohammed/ai-layer`, `fs1/backend`, `fs2/frontend` — WIP per person
+The AI layer validates generated JSON before it reaches the frontend, keeping the app behavior tied to a typed route contract.
 
-Merge to main only when something works. Voice call stays open the whole time.
+## Visual Direction
+
+The current experience uses React, CSS animation, a mountain image, SVG route overlays, and absolutely positioned waypoint components. That was enough to prove the core idea.
+
+The PEAK 2.0 direction is a richer illustrated mountain system:
+
+- React for the app shell and learning UI.
+- SVG for route paths, waypoint hit targets, labels, and trail effects.
+- Canvas for atmosphere, particles, fog, weather, and character motion.
+- Layered 2.5D mountain assets before considering full 3D.
+
+This keeps the product visually ambitious while avoiding the complexity of a full game engine too early.
+
+## Roadmap
+
+See [PLAN.md](./PLAN.md) for the PEAK 2.0 roadmap. The main upcoming work is to replace the current single fixed route with procedural route layouts, then evolve the flat route array into a graph that supports adaptive detours and multiple active mountains.
+
+## Local Development
+
+Install dependencies in each package:
+
+```sh
+npm install
+cd server && npm install
+cd ../web && npm install
+```
+
+Create a root `.env` file with:
+
+```sh
+ANTHROPIC_API_KEY=your_key_here
+```
+
+Run the backend:
+
+```sh
+cd server
+npm run dev
+```
+
+Run the frontend in a second terminal:
+
+```sh
+cd web
+npm run dev
+```
+
+By default, the frontend expects the API at `http://localhost:3001`. Set `VITE_API_URL` in `web/.env` if the server is running elsewhere.
+
+## Validation
+
+Build the frontend:
+
+```sh
+cd web
+npm run build
+```
+
+Typecheck the server:
+
+```sh
+cd server
+npm run build
+```
+
+## Status
+
+PEAK is an evolving portfolio project. The current version demonstrates the end-to-end learning loop and visual metaphor; the next version focuses on procedural route generation, adaptive learning paths, and a more seamless animated mountain scene.

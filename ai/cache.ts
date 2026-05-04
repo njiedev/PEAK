@@ -1,19 +1,15 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 import type { Route } from '../shared/schema'
-import { DEMO_SKILLS, normalizeSkill } from './demoSkills'
 import { generateRoute } from './generate'
 import { safeParseRoute } from './validate'
 
-// File-backed cache for demo use. First call generates and writes;
-// subsequent calls with the same skill (or a similar enough one)
-// read from disk — no API call.
+// File-backed route cache. First call generates and writes; subsequent calls
+// with the same skill, or a similar enough one, read from disk.
 
 const CACHE_DIR = path.join(__dirname, 'cache')
-const MIN_LOADING_MS = 10_000
+const MIN_LOADING_MS = 0
 const SIMILARITY_THRESHOLD = 0.5
-
-const DEMO_SKILL_LOOKUP = new Map(DEMO_SKILLS.map((skill) => [normalizeSkill(skill), skill]))
 
 const STOPWORDS = new Set([
   'i', 'a', 'an', 'the', 'to', 'of', 'for', 'on', 'in', 'at', 'by',
@@ -125,8 +121,8 @@ type CacheOptions = {
 }
 
 export async function generateRouteCached(skill: string, options: CacheOptions = {}): Promise<Route> {
-  const cacheSkill = DEMO_SKILL_LOOKUP.get(normalizeSkill(skill)) ?? skill
-  console.log('[ai-cache] route requested', { skill, cacheSkill })
+  const cacheSkill = skill
+  console.log('[ai-cache] route requested', { skill })
   const startedAt = Date.now()
   const minLoadingMs = options.minLoadingMs ?? MIN_LOADING_MS
 
