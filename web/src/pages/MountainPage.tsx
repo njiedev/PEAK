@@ -6,7 +6,7 @@ import Waypoint from "../components/Waypoint"
 import StarField from "../components/Starfield"
 import SkillInput from "../components/SkillInput"
 import mountainImg from "../assets/mountain2.png"
-import { pickPosition } from "../lib/pathMath"
+import { layoutWaypoints } from "../lib/layout"
 import { useProgress } from "../lib/ProgressContext"
 
 type MountainLocationState = {
@@ -192,7 +192,8 @@ function MountainPage() {
         if (progressScope !== routeStorageScope(route.skill)) return
 
         const scope = routeStorageScope(route.skill)
-        const routeComplete = route.route.length > 0 && route.route.every((waypoint) => completedWaypoints.includes(waypoint.id))
+        const waypoints = route.route
+        const routeComplete = waypoints.length > 0 && waypoints.every((waypoint) => completedWaypoints.includes(waypoint.id))
         if (routeComplete && !hadCompletedRouteRef.current) {
             const alreadySeen = window.localStorage.getItem(endgameSeenKey(scope)) === "1"
             if (!alreadySeen) {
@@ -217,7 +218,8 @@ function MountainPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [revealing])
 
-    const peakPos = route ? pickPosition(route.route.length - 1, route.route.length) : { x: 0.5, y: 0.18 }
+    const waypoints = route ? layoutWaypoints(route.route, route.skill) : []
+    const peakPos = waypoints.length > 0 ? waypoints[waypoints.length - 1] : { x: 0.5, y: 0.18 }
     const routeScope = route ? routeStorageScope(route.skill) : "default"
     const progressReady = !route || progressScope === routeScope
     const effectiveActiveIndex = progressReady ? activeIndex : 0
@@ -247,12 +249,12 @@ function MountainPage() {
     }, [skill, initialRoute])
 
     function openWaypoint(waypoint: WaypointData, index: number) {
-        const pos = pickPosition(index, route?.route.length ?? 1)
+        const pos = waypoints[index] ?? { x: 0.5, y: 0.5 }
         navigate("/detail", {
             state: {
                 waypoint,
                 index,
-                total: route?.route.length,
+                total: waypoints.length,
                 skill: route?.skill,
                 focus: pos,
                 fullRoute: route,
@@ -318,7 +320,7 @@ function MountainPage() {
 
             {/* trail + waypoints layer */}
             {route && (() => {
-                const positions = route.route.map((_, i) => pickPosition(i, route.route.length))
+                const positions = waypoints.map((waypoint) => ({ x: waypoint.x, y: waypoint.y }))
                 const ghostPath = smoothPath(positions)
                 const donePath = effectiveActiveIndex > 0 ? smoothPath(positions.slice(0, effectiveActiveIndex + 1)) : null
                 const completedPositions = positions.slice(0, Math.min(effectiveActiveIndex + 1, positions.length))
@@ -411,7 +413,7 @@ function MountainPage() {
 
                         {/* campfires — rendered above trail */}
                         {positions.map((pos, i) => {
-                            const wp = route.route[i]
+                            const wp = waypoints[i]
                             const state =
                                 isWaypointCompleted(wp.id) || i < effectiveActiveIndex ? "completed" :
                                 i === effectiveActiveIndex ? "active" : "far"
