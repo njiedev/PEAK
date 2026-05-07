@@ -5,6 +5,7 @@ import WaypointDetail from './pages/WaypointDetail'
 import Layout from './Layout'
 import { ProgressProvider } from './lib/ProgressContext'
 import { MountainProvider } from './lib/MountainContext'
+import AppShell from './AppShell'
 
 function App() {
 
@@ -12,6 +13,7 @@ function App() {
     <MountainProvider>
     <ProgressProvider>
       <BrowserRouter>
+      <AppShell>
         <Routes>
           {/* routes outside the sky layout (own their backgrounds) */}
           <Route path='/' element={<InputPage />} />
@@ -19,9 +21,11 @@ function App() {
           {/* routes that share the persistent sky */}
           <Route element={<Layout />}>
             <Route path='/mountain' element={<MountainPage />} />
+            <Route path='/mountain/:mountainId' element={<MountainPage />} />
             <Route path='/detail' element={<WaypointDetail />} />
           </Route>
         </Routes>
+      </AppShell>
       </BrowserRouter>
     </ProgressProvider>
     </MountainProvider>

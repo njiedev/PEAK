@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { generateRoute } from "../api"
-import type { Route, Waypoint as WaypointData } from "../../../shared/schema"
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom"
+import type { Waypoint as WaypointData } from "../../../shared/schema"
 import Waypoint from "../components/Waypoint"
 import StarField from "../components/Starfield"
 import SkillInput from "../components/SkillInput"
@@ -11,8 +10,6 @@ import { useProgress } from "../lib/ProgressContext"
 import { useMountain } from "../lib/MountainContext"
 
 type MountainLocationState = {
-    skill?: string
-    route?: Route
     reveal?: boolean
 }
 
@@ -146,13 +143,14 @@ function smoothPath(pts: { x: number; y: number }[]): string {
 }
 
 function MountainPage() {
-    const { activeMountain } = useMountain()
+    const { mountainId } = useParams()
+    const { activeMountain, selectMountain } = useMountain()
     const location = useLocation()
     const navigate = useNavigate()
     const navigationState = location.state as MountainLocationState | null
-    const skill = activeMountain?.route.skill
-    const route = activeMountain?.route ?? null
-    const [error, setError] = useState<string | null>(null)
+    const routeMountain = !mountainId || activeMountain?.id === mountainId ? activeMountain : null
+    const skill = routeMountain?.route.skill
+    const route = routeMountain?.route ?? null
     const [revealing, setRevealing] = useState(Boolean(navigationState?.reveal && route))
     const [loginStreak, setLoginStreak] = useState<LoginStreak>(() => readLoginStreak())
     const [journeyStats, setJourneyStats] = useState<JourneyStats>(() => readJourneyStats(routeStorageScope(route?.skill ?? skill ?? "default")))
@@ -162,6 +160,11 @@ function MountainPage() {
     const hadCompletedRouteRef = useRef(false)
 
     const { activeIndex, completedWaypoints, isCompleted, progressScope, setProgressScope } = useProgress()
+
+    useEffect(() => {
+        if (!mountainId) return
+        selectMountain(mountainId)
+    }, [mountainId, selectMountain])
 
     useEffect(() => {
         window.localStorage.setItem(LOGIN_STREAK_STORAGE_KEY, JSON.stringify(loginStreak))
@@ -448,20 +451,9 @@ function MountainPage() {
             </header>
 
             {/* loading */}
-            {!route && !error && (
+            {!route && (
                 <div className="relative z-10 flex h-[80vh] items-center justify-center">
                     <p className="text-3xl font-bold">loading the mountain...</p>
-                </div>
-            )}
-
-            {/* error */}
-            {error && (
-                <div className="relative z-10 flex h-[80vh] flex-col items-center justify-center gap-4 text-center">
-                    <p className="text-2xl font-bold">Something went wrong.</p>
-                    <p className="max-w-lg text-white/75">{error}</p>
-                    <Link to="/" className="rounded px-4 py-2 bg-white text-black font-bold">
-                        Try again
-                    </Link>
                 </div>
             )}
 

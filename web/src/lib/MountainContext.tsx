@@ -9,7 +9,7 @@
 // - MountainContext.Provider makes that state/functions available to everything inside it.
 // - useMountain() is the helper hook components use to read that provider value.
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useState } from "react";
 import type { Route } from "../../../shared/schema";
 
 
@@ -74,7 +74,7 @@ export function MountainProvider({children}: {children: React.ReactNode}) {
         ? mountains.find((m) => m.id === activeMountainId) ?? null
         : null;
 
-    function createMountain(route: Route) {
+    const createMountain = useCallback((route: Route) => {
         const newMountain: MountainRecord = {
             id: crypto.randomUUID(),
             route,
@@ -87,16 +87,16 @@ export function MountainProvider({children}: {children: React.ReactNode}) {
         // The mountain the user just created should become the selected mountain.
         setActiveMountainId(newMountain.id);
         return newMountain;
-    }
+    }, []);
 
-    function selectMountain(id: string) {
+    const selectMountain = useCallback((id: string) => {
         // Pages/components should not set activeMountainId directly.
         // This function protects the invariant: activeMountainId must point to a real mountain.
         const mountainExists = mountains.some((m) => m.id === id);
         if (!mountainExists) return;
 
         setActiveMountainId(id);
-    }
+    }, [mountains]);
 
     return (
         // Provider is an invisible wrapper. It does not render visible UI by itself.

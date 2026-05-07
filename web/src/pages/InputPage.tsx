@@ -29,8 +29,8 @@ function InputPage() {
         const routeRequest = generateRoute(skill)
         Promise.all([routeRequest, wait(PAN_DURATION_MS)])
             .then(([route]) => {
-                createMountain(route)
-                navigate("/mountain", { state: {reveal: true } })
+                const mountain = createMountain(route)
+                navigate(`/mountain/${mountain.id}`, { state: {reveal: true } })
             })
             .catch((err: unknown) => {
                 console.error("[start] route generation failed", err)
@@ -38,7 +38,7 @@ function InputPage() {
                 setIsLaunching(false)
                 setLaunchedFromQueue(false)
             })
-    }, [navigate])
+    }, [createMountain, navigate])
 
     const handleStart = useCallback((skill: string) => {
         if (isLaunching) return
