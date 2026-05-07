@@ -9,8 +9,9 @@
 // - MountainContext.Provider makes that state/functions available to everything inside it.
 // - useMountain() is the helper hook components use to read that provider value.
 
-import React, { createContext, useCallback, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useState, useEffect } from "react";
 import type { Route } from "../../../shared/schema";
+import supabase  from "./supabase" 
 
 
 // MountainRecord is frontend app state, not AI output.
@@ -23,6 +24,7 @@ export type MountainRecord = {
   createdAt: string;
 };
 
+
 // This is the shape of the object that useMountain() returns.
 // It lists what components are allowed to see and do with mountain state.
 type MountainContextValue = {
@@ -34,6 +36,9 @@ type MountainContextValue = {
   activeMountainId: string | null;
   // Create a new saved mountain from a generated Route.
   // Returns the new record so callers can immediately use its id.
+  isLoadingMountains: boolean;
+  // A flag to indicate if the mountains are currently being loaded(from supabase cause its async).
+
   createMountain: (route: Route) => MountainRecord;
   // Selects an existing mountain by id. Unknown ids are ignored.
   selectMountain: (id: string) => void;
@@ -58,14 +63,39 @@ export function useMountain(): MountainContextValue {
   // This returned object is the same object passed into Provider's value prop.
   return context;
 }
-
 export function MountainProvider({children}: {children: React.ReactNode}) {
+
+    useEffect(() => {
+        const fetchMountains = async () => {
+            setIsLoadingMountains(true);
+            const { data, error } = await supabase.from("mountains").select("*");
+            if (error) {
+                console.error("Error fetching mountains:", error);
+                setIsLoadingMountains(false);
+            } else {
+                // Process the fetched data
+                const processedData = data.map((mountain) => ({
+                    id: mountain.id,
+                    route: mountain.route_json,
+                    createdAt: mountain.created_at
+                }))
+                console.log("Fetched mountains:", processedData);
+                setMountains(processedData);
+                setIsLoadingMountains(false);
+            }
+        };
+        fetchMountains();
+    }, []);
+
     // This is the actual list of saved mountains.
     const [mountains, setMountains] = useState<MountainRecord[]>([]);
 
     // Store the selected mountain's id, not the full mountain object.
     // The full activeMountain is derived below so it cannot drift out of sync.
     const [activeMountainId, setActiveMountainId] = useState<string | null>(null);
+    const [isLoadingMountains, setIsLoadingMountains] = useState<boolean>(true);
+
+
 
     // Derived value:
     // activeMountainId answers "which mountain?"
@@ -101,7 +131,7 @@ export function MountainProvider({children}: {children: React.ReactNode}) {
     return (
         // Provider is an invisible wrapper. It does not render visible UI by itself.
         // The children do the visual work; this wrapper just supplies mountain data/actions.
-        <MountainContext.Provider value={{ mountains, activeMountain, activeMountainId, createMountain, selectMountain }}>
+        <MountainContext.Provider value={{ mountains, activeMountain, activeMountainId, createMountain, selectMountain, isLoadingMountains }}>
             {children}
         </MountainContext.Provider>
     )

@@ -1,0 +1,150 @@
+{
+  "skill": "how do i build a mountain",
+  "estimatedHours": 8,
+  "route": [
+    {
+      "id": 1,
+      "title": "Pick Your Mountain Type",
+      "summary": "Decide what kind of mountain you're building and sketch the basic shape on paper.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Draw a simple side-view sketch of your mountain. Label what type it is (volcano, snowy peak, rocky cliff, or rolling hill). Take a photo and submit it."
+      },
+      "difficulty": 1,
+      "x": 0.5,
+      "y": 0.92
+    },
+    {
+      "id": 2,
+      "title": "Build the Base Structure",
+      "summary": "Create the foundation of your mountain using your chosen material (cardboard, clay, foam, or digital modeling).",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Build the basic cone or pyramid shape of your mountain. It should be stable and at least 6 inches tall if physical, or show the 3D base shape if digital. Take a photo of your base structure and submit it."
+      },
+      "difficulty": 2,
+      "x": 0.7851863552196594,
+      "y": 0.8436363636363636
+    },
+    {
+      "id": 3,
+      "title": "Add Texture to the Slopes",
+      "summary": "Make the sides of your mountain look real by adding ridges, bumps, and uneven surfaces.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Add texture to your mountain's sides. Use crumpled paper, carved lines, sculpted clay details, or digital texturing tools. The surface should look rocky and natural, not smooth. Take a photo showing the textured sides and submit it."
+      },
+      "difficulty": 2,
+      "x": 0.7587188492222688,
+      "y": 0.7672727272727273
+    },
+    {
+      "id": 4,
+      "title": "Create the Peak",
+      "summary": "Build the top of your mountain with a distinct summit, crater, or snowy cap.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Finish the top of your mountain. Add a pointed peak, a flat crater rim, or a snow-covered summit using white paint, cotton, or digital snow texture. Take a photo looking down at the peak from above and submit it."
+      },
+      "difficulty": 2,
+      "x": 0.4495213778741604,
+      "y": 0.6909090909090909
+    },
+    {
+      "id": 5,
+      "title": "Paint the Base Layers",
+      "summary": "Apply the first coat of color to your mountain to establish the rock or earth tone.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Paint your mountain's main color. Use browns, grays, or greens depending on your mountain type. Cover the whole surface except the peak if it's snowy. Let it dry and take a photo of your painted mountain from the front."
+      },
+      "difficulty": 2,
+      "x": 0.1954873363553548,
+      "y": 0.6145454545454545
+    },
+    {
+      "id": 6,
+      "title": "Add Shadows and Highlights",
+      "summary": "Make your mountain look three-dimensional by adding darker and lighter shades.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Use darker paint or markers in the cracks and valleys of your mountain. Add lighter colors on the ridges and edges where sunlight would hit. Take a photo showing the shading that makes it look 3D."
+      },
+      "difficulty": 3,
+      "x": 0.2742270958174746,
+      "y": 0.5381818181818183
+    },
+    {
+      "id": 7,
+      "title": "Build the Base Landscape",
+      "summary": "Create the ground around your mountain so it doesn't just float in space.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Add a base platform around your mountain. Use cardboard, a wooden board, foam board, or a digital ground plane. Paint or texture it to look like grass, dirt, or desert. Take a photo showing your mountain on its landscape base."
+      },
+      "difficulty": 3,
+      "x": 0.5996932363242812,
+      "y": 0.4618181818181819
+    },
+    {
+      "id": 8,
+      "title": "Add Natural Details",
+      "summary": "Place trees, rocks, snow patches, or other features that make your mountain feel alive.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Add at least 3 details to your mountain or its base: tiny trees made from twigs or foam, painted rocks, snow patches, a waterfall, or a hiking trail. Take a photo showing these details up close."
+      },
+      "difficulty": 3,
+      "x": 0.8162138348406401,
+      "y": 0.3854545454545455
+    },
+    {
+      "id": 9,
+      "title": "Create Weather Effects",
+      "summary": "Add clouds, mist, or other atmospheric effects to make your mountain dramatic.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Add weather to your scene. Use cotton balls for clouds around the peak, white glue mist on the slopes, or paint fog in the valleys. If digital, add particle effects or fog layers. Take a photo showing the weather effects."
+      },
+      "difficulty": 4,
+      "x": 0.6871735017253637,
+      "y": 0.3090909090909091
+    },
+    {
+      "id": 10,
+      "title": "Light Your Mountain",
+      "summary": "Set up lighting to show off your mountain's features and create mood.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Place your mountain near a lamp or window, or use a flashlight to create dramatic lighting from one side. If digital, add a light source and shadows. Take a photo with good lighting that makes your mountain look impressive."
+      },
+      "difficulty": 4,
+      "x": 0.35358851399189717,
+      "y": 0.23272727272727278
+    },
+    {
+      "id": 11,
+      "title": "Name and Document Your Mountain",
+      "summary": "Give your mountain a name and write a description of its features and how you built it.",
+      "challenge": {
+        "type": "text",
+        "prompt": "Write a name for your mountain and 2-3 sentences describing it. Include what type of mountain it is, what materials you used, and one cool feature you added. Example: 'Mount Fireblast is an active volcano with a glowing crater. I built it from cardboard and painted lava flowing down the west side.'"
+      },
+      "difficulty": 3,
+      "x": 0.18000313390377487,
+      "y": 0.15636363636363648
+    },
+    {
+      "id": 12,
+      "title": "Final Showcase",
+      "summary": "Take a professional-quality photo of your finished mountain from the best angle and share it.",
+      "challenge": {
+        "type": "photo",
+        "prompt": "Set up your mountain in good lighting with a clean background. Take a final showcase photo from the angle that shows it best. This is the photo you'd show a friend or post online. Make sure the whole mountain and its base are visible and in focus."
+      },
+      "difficulty": 4,
+      "x": 0.356112811348928,
+      "y": 0.08000000000000007
+    }
+  ]
+}
