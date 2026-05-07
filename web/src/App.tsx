@@ -4,10 +4,12 @@ import MountainPage from './pages/MountainPage'
 import WaypointDetail from './pages/WaypointDetail'
 import Layout from './Layout'
 import { ProgressProvider } from './lib/ProgressContext'
+import { MountainProvider } from './lib/MountainContext'
 
 function App() {
 
   return (
+    <MountainProvider>
     <ProgressProvider>
       <BrowserRouter>
         <Routes>
@@ -22,6 +24,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </ProgressProvider>
+    </MountainProvider>
   )
 }
 

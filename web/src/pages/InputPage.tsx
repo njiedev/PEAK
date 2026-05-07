@@ -4,6 +4,7 @@ import { generateRoute } from "../api"
 import SkillInput from "../components/SkillInput"
 import StarField from "../components/Starfield";
 import Title from "../components/Title";
+import { useMountain } from "../lib/MountainContext";
 
 const PAN_DURATION_MS = 2500
 
@@ -14,6 +15,7 @@ function wait(ms: number) {
 function InputPage() {
     const navigate = useNavigate()
     const location = useLocation()
+    const { createMountain } = useMountain()
     const queuedSkill = (location.state as { queuedSkill?: string } | null)?.queuedSkill
     const [isLaunching, setIsLaunching] = useState(Boolean(queuedSkill))
     const [launchedFromQueue, setLaunchedFromQueue] = useState(Boolean(queuedSkill))
@@ -27,7 +29,8 @@ function InputPage() {
         const routeRequest = generateRoute(skill)
         Promise.all([routeRequest, wait(PAN_DURATION_MS)])
             .then(([route]) => {
-                navigate("/mountain", { state: { skill, route, reveal: true } })
+                createMountain(route)
+                navigate("/mountain", { state: {reveal: true } })
             })
             .catch((err: unknown) => {
                 console.error("[start] route generation failed", err)

@@ -8,6 +8,7 @@ import SkillInput from "../components/SkillInput"
 import mountainImg from "../assets/mountain2.png"
 import { layoutWaypoints } from "../lib/layout"
 import { useProgress } from "../lib/ProgressContext"
+import { useMountain } from "../lib/MountainContext"
 
 type MountainLocationState = {
     skill?: string
@@ -145,16 +146,16 @@ function smoothPath(pts: { x: number; y: number }[]): string {
 }
 
 function MountainPage() {
+    const { activeMountain } = useMountain()
     const location = useLocation()
     const navigate = useNavigate()
     const navigationState = location.state as MountainLocationState | null
-    const skill = navigationState?.skill
-    const initialRoute = navigationState?.route ?? null
-    const [route, setRoute] = useState<Route | null>(initialRoute)
+    const skill = activeMountain?.route.skill
+    const route = activeMountain?.route ?? null
     const [error, setError] = useState<string | null>(null)
-    const [revealing, setRevealing] = useState(Boolean(navigationState?.reveal && initialRoute))
+    const [revealing, setRevealing] = useState(Boolean(navigationState?.reveal && route))
     const [loginStreak, setLoginStreak] = useState<LoginStreak>(() => readLoginStreak())
-    const [journeyStats, setJourneyStats] = useState<JourneyStats>(() => readJourneyStats(routeStorageScope(initialRoute?.skill ?? skill ?? "default")))
+    const [journeyStats, setJourneyStats] = useState<JourneyStats>(() => readJourneyStats(routeStorageScope(route?.skill ?? skill ?? "default")))
     const [showEndgame, setShowEndgame] = useState(false)
     const [generatingNewPeak, setGeneratingNewPeak] = useState(false)
     const [newPeakStatus, setNewPeakStatus] = useState<string | null>(null)
@@ -225,28 +226,6 @@ function MountainPage() {
     const effectiveActiveIndex = progressReady ? activeIndex : 0
     const isWaypointCompleted = (waypointId: number) => progressReady && isCompleted(waypointId)
 
-    useEffect(() => {
-        if (!skill) return
-        if (initialRoute) {
-            setRoute(initialRoute)
-            return
-        }
-
-        let isCurrent = true
-        setRoute(null)
-        setError(null)
-
-        generateRoute(skill)
-            .then((generatedRoute) => {
-                if (isCurrent) setRoute(generatedRoute)
-            })
-            .catch((err: unknown) => {
-                if (!isCurrent) return
-                setError(err instanceof Error ? err.message : "route generation failed")
-            })
-
-        return () => { isCurrent = false }
-    }, [skill, initialRoute])
 
     function openWaypoint(waypoint: WaypointData, index: number) {
         const pos = waypoints[index] ?? { x: 0.5, y: 0.5 }
