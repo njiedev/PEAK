@@ -1,5 +1,5 @@
 # PEAK
-
+https://www.youtube.com/watch?v=LJLqLSbx44Y
 PEAK is an AI-generated learning app that turns a child's goal into an interactive climb up a mountain. A learner enters something they want to learn, PEAK generates a sequence of hands-on challenges, and each completed waypoint moves them higher toward the summit.
 
 The project started as a hackathon prototype and is being rebuilt into a portfolio-grade product focused on adaptive learning, visual progression, and a polished 2.5D mountain experience.
