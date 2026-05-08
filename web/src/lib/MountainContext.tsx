@@ -39,7 +39,7 @@ type MountainContextValue = {
   isLoadingMountains: boolean;
   // A flag to indicate if the mountains are currently being loaded(from supabase cause its async).
 
-  createMountain: (route: Route) => MountainRecord;
+  createMountain: (route: Route) => Promise<MountainRecord>;
   // Selects an existing mountain by id. Unknown ids are ignored.
   selectMountain: (id: string) => void;
 };
@@ -75,7 +75,7 @@ export function MountainProvider({children}: {children: React.ReactNode}) {
             } else {
                 // Process the fetched data
                 const processedData = data.map((mountain) => ({
-                    id: mountain.id,
+                    id: String(mountain.id),
                     route: mountain.route_json,
                     createdAt: mountain.created_at
                 }))
@@ -104,27 +104,40 @@ export function MountainProvider({children}: {children: React.ReactNode}) {
         ? mountains.find((m) => m.id === activeMountainId) ?? null
         : null;
 
-    const createMountain = useCallback((route: Route) => {
-        const newMountain: MountainRecord = {
-            id: crypto.randomUUID(),
-            route,
-            createdAt: new Date().toISOString()
-        };
+    const createMountain = async (route: Route): Promise<MountainRecord> => {
+    const { data, error } = await supabase
+        .from("mountains")
+        .insert({
+        skill: route.skill,
+        route_json: route,
+        })
+        .select()
+        .single()
 
-        // Use the functional updater so React gives us the freshest mountain list.
-        setMountains((currentMountains) => [...currentMountains, newMountain]);
+    if (error) {
+        console.error("Error creating mountain:", error)
+        throw error
+    }
 
-        // The mountain the user just created should become the selected mountain.
-        setActiveMountainId(newMountain.id);
-        return newMountain;
-    }, []);
+    const newMountain: MountainRecord = {
+        id: String(data.id),
+        route: data.route_json,
+        createdAt: data.created_at,
+    }
+
+    setMountains((currentMountains) => [...currentMountains, newMountain])
+    setActiveMountainId(newMountain.id)
+
+    return newMountain
+    }
+
 
     const selectMountain = useCallback((id: string) => {
         // Pages/components should not set activeMountainId directly.
         // This function protects the invariant: activeMountainId must point to a real mountain.
         const mountainExists = mountains.some((m) => m.id === id);
         if (!mountainExists) return;
-
+    
         setActiveMountainId(id);
     }, [mountains]);
 

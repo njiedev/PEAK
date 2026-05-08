@@ -14,6 +14,7 @@ export default function AppShell({ children }: AppShellProps) {
   function handleSelectMountain(mountainId: string) {
     if (!mountainId) return
     navigate(`/mountain/${mountainId}`)
+    console.log(activeMountainId)
   }
 
   return (

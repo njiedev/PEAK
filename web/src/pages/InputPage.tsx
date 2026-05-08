@@ -28,8 +28,8 @@ function InputPage() {
 
         const routeRequest = generateRoute(skill)
         Promise.all([routeRequest, wait(PAN_DURATION_MS)])
-            .then(([route]) => {
-                const mountain = createMountain(route)
+            .then(async ([route]) => {
+                const mountain = await createMountain(route)
                 navigate(`/mountain/${mountain.id}`, { state: {reveal: true } })
             })
             .catch((err: unknown) => {
