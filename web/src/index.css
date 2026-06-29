@@ -517,6 +517,257 @@
   animation: mountain-reveal-chrome 4.8s ease-out both;
 }
 
+/* ---------- Sky mountain picker ---------- */
+
+@keyframes mountain-sky-picker-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mountain-sky-picker-out {
+  0%, 24% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes mountain-sky-word-float {
+  0%, 100% {
+    transform: translate3d(-50%, -50%, 0);
+  }
+  50% {
+    transform: translate3d(
+      calc(-50% + var(--float-drift, 0rem)),
+      calc(-50% - var(--float-distance, 0.6rem)),
+      0
+    );
+  }
+}
+
+.mountain-stage {
+  transition: transform 0.78s cubic-bezier(0.3, 0, 0.1, 1), opacity 0.6s ease, filter 0.6s ease;
+  transform-origin: center 18%;
+  will-change: transform, opacity, filter;
+}
+
+.mountain-sky-stage-open {
+  transform: translate3d(0, 64vh, 0) scale(0.92);
+  opacity: 0.32;
+  filter: blur(1px) brightness(0.72);
+}
+
+.mountain-sky-trigger {
+  display: inline-flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.86);
+  padding: 0.35rem;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: transform 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+.mountain-sky-trigger-icon {
+  position: relative;
+  display: block;
+  width: 2.1rem;
+  height: 1.15rem;
+}
+
+.mountain-sky-trigger-peak {
+  position: absolute;
+  bottom: 0;
+  display: block;
+  background: currentColor;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.mountain-sky-trigger-peak-back {
+  left: 0;
+  width: 1.25rem;
+  height: 0.78rem;
+  opacity: 0.62;
+}
+
+.mountain-sky-trigger-peak-front {
+  right: 0.05rem;
+  width: 1.55rem;
+  height: 1.08rem;
+}
+
+.mountain-sky-trigger:hover:not(:disabled),
+.mountain-sky-trigger:focus-visible {
+  transform: translateY(-1px);
+  color: white;
+}
+
+.mountain-sky-trigger:focus-visible {
+  outline: 0;
+  color: white;
+}
+
+.mountain-sky-trigger:disabled {
+  cursor: default;
+  opacity: 0.52;
+}
+
+.mountain-sky-picker {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% -8%, rgba(32, 48, 93, 0.34), transparent 42%),
+    linear-gradient(180deg, #02040d 0%, #050713 58%, #000 100%);
+  color: white;
+  animation: mountain-sky-picker-in 0.46s ease-out both;
+}
+
+.mountain-sky-picker-selecting {
+  background:
+    radial-gradient(circle at 50% 42%, rgba(40, 58, 106, 0.18), transparent 30%),
+    linear-gradient(180deg, #01030a 0%, #030512 56%, #000 100%);
+}
+
+.mountain-sky-picker-descending {
+  animation: mountain-sky-picker-out 1.2s ease-in both;
+  pointer-events: none;
+}
+
+.mountain-sky-picker-backdrop,
+.mountain-sky-picker-stars {
+  position: absolute;
+  inset: 0;
+}
+
+.mountain-sky-picker-backdrop {
+  z-index: 1;
+  border: 0;
+  background: transparent;
+}
+
+.mountain-sky-picker-stars {
+  z-index: 0;
+  opacity: 0.92;
+  pointer-events: none;
+}
+
+.mountain-sky-picker-selecting .mountain-sky-picker-stars {
+  opacity: 1;
+}
+
+.mountain-sky-picker-selecting .starfield-descent-track {
+  animation-duration: 1.05s;
+}
+
+.mountain-sky-picker-descending .starfield-descent-track {
+  animation-duration: 0.82s;
+}
+
+.mountain-sky-picker-list {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: clamp(4.5rem, 13vh, 8rem) clamp(1.5rem, 7vw, 6rem);
+  pointer-events: none;
+}
+
+.mountain-sky-word {
+  max-width: min(28rem, 82vw);
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.82);
+  cursor: pointer;
+  font-size: clamp(1.55rem, 5vw, 4.6rem);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 0.94;
+  overflow-wrap: anywhere;
+  padding: 0.15rem 0.2rem;
+  pointer-events: auto;
+  text-align: center;
+  transition: color 0.18s ease, opacity 0.18s ease;
+}
+
+.mountain-sky-picker-list .mountain-sky-word {
+  position: absolute;
+  left: var(--word-x, 50%);
+  top: var(--word-y, 50%);
+  animation: mountain-sky-word-float 4.5s ease-in-out infinite;
+  animation-delay: calc(var(--float-index, 0) * -0.42s);
+  transition:
+    left 0.78s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.78s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.22s ease,
+    font-size 0.78s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.28s ease,
+    transform 0.78s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mountain-sky-word:hover,
+.mountain-sky-word:focus-visible,
+.mountain-sky-word.is-active {
+  color: white;
+  opacity: 1;
+}
+
+.mountain-sky-picker-selecting .mountain-sky-word {
+  pointer-events: none;
+}
+
+.mountain-sky-picker-list .mountain-sky-word.is-hidden {
+  opacity: 0;
+}
+
+.mountain-sky-picker-list .mountain-sky-word.is-selected {
+  left: 50%;
+  top: 50%;
+  color: white;
+  font-size: clamp(3.4rem, 12vw, 9.5rem);
+  opacity: 1;
+  animation: none;
+  transform: translate3d(-50%, -50%, 0);
+}
+
+.mountain-sky-picker-descending .mountain-sky-picker-list .mountain-sky-word.is-selected {
+  opacity: 0;
+  transform: translate3d(-50%, calc(-50% + 7vh), 0) scale(0.94);
+  transition:
+    opacity 0.72s ease,
+    transform 0.92s cubic-bezier(0.3, 0, 0.1, 1);
+}
+
+.mountain-sky-word:focus-visible {
+  border-radius: 8px;
+  outline: 2px solid rgba(207, 229, 255, 0.76);
+  outline-offset: 0.35rem;
+}
+
+.mountain-sky-word-inline {
+  font-size: clamp(1.15rem, 4vw, 2.9rem);
+}
+
+@media (max-width: 680px) {
+  .mountain-sky-trigger {
+    padding-inline: 0.85rem;
+  }
+
+  .mountain-sky-picker-list {
+    padding: 4.25rem 1rem 2rem;
+  }
+}
+
 /* ---------- Mountain route signs ---------- */
 
 @keyframes streak-fire-live {
@@ -870,6 +1121,22 @@
   animation: trail-spark-rise 2.4s ease-in-out infinite;
   transform-box: fill-box;
   transform-origin: center;
+}
+
+.detour-label {
+  position: absolute;
+  left: 50%;
+  top: calc(100% - 0.35rem);
+  transform: translateX(-50%);
+  color: rgba(219, 244, 255, 0.9);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.82);
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 @keyframes detail-zoom-in {
@@ -1257,6 +1524,11 @@
 .waypoint-action-complete {
   border-color: rgba(106, 139, 83, 0.8);
   background: linear-gradient(180deg, rgba(92, 125, 62, 0.92), rgba(51, 78, 37, 0.95));
+}
+
+.waypoint-action-detour {
+  border-color: rgba(82, 126, 141, 0.86);
+  background: linear-gradient(180deg, rgba(48, 111, 135, 0.92), rgba(28, 61, 82, 0.95));
 }
 
 .waypoint-small-button {

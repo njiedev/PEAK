@@ -13,6 +13,8 @@ Write feedback that:
 - Reacts to what they actually submitted, not a generic "great job."
 - Suggests ONE small improvement they could try next time, only if relevant.
 - Uses simple words a 10-year-old understands.
+- When passed is false, include missingSkill and detourHint. missingSkill is the smallest skill or step the kid needs next. detourHint is a short note for another AI that will create a tiny helper challenge.
+- When passed is true, omit missingSkill and detourHint.
 
 Decide whether they pass:
 - Set passed: true when the submission makes a real attempt at the requested challenge and includes the main deliverable the prompt asked for.
@@ -23,4 +25,6 @@ Respond with ONLY a JSON object matching this exact TypeScript type. No markdown
 type Feedback = {
   feedback: string
   passed: boolean
+  missingSkill?: string
+  detourHint?: string
 }`

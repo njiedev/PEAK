@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import type { Route, Feedback } from '../shared/schema'
+import type { Route, Feedback, Detour } from '../shared/schema'
 
 // Runtime validation for Claude's route JSON output.
 // Mirrors shared/schema.ts. If that file changes, change this in the same commit.
@@ -51,6 +51,8 @@ export function safeParseRoute(
 export const FeedbackSchema = z.object({
   feedback: z.string().min(1),
   passed: z.boolean(),
+  missingSkill: z.string().min(1).optional(),
+  detourHint: z.string().min(1).optional(),
 })
 
 export function safeParseFeedback(
@@ -60,5 +62,28 @@ export function safeParseFeedback(
   | { success: false; error: string } {
   const result = FeedbackSchema.safeParse(input)
   if (result.success) return { success: true, data: result.data as Feedback }
+  return { success: false, error: result.error.toString() }
+}
+
+export const DetourSchema = z.object({
+  id: z.string().min(1),
+  parentWaypointId: z.number().int().positive(),
+  title: z.string().min(1),
+  summary: z.string().min(1),
+  challenge: ChallengeSchema,
+  difficulty: z.union([
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+  ]),
+})
+
+export function safeParseDetour(
+  input: unknown,
+):
+  | { success: true; data: Detour }
+  | { success: false; error: string } {
+  const result = DetourSchema.safeParse(input)
+  if (result.success) return { success: true, data: result.data as Detour }
   return { success: false, error: result.error.toString() }
 }

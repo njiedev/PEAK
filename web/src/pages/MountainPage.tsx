@@ -1,21 +1,22 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { generateRoute } from "../api"
-import type { Route, Waypoint as WaypointData } from "../../../shared/schema"
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom"
+import type { Detour, Waypoint as WaypointData } from "../../../shared/schema"
 import Waypoint from "../components/Waypoint"
 import StarField from "../components/Starfield"
 import SkillInput from "../components/SkillInput"
 import mountainImg from "../assets/mountain2.png"
 import { pickPosition } from "../lib/pathMath"
 import { useProgress } from "../lib/ProgressContext"
+import { readActiveDetours, routeStorageScope } from "../lib/detours"
+import { useMountain } from "../lib/MountainContext"
 
 type MountainLocationState = {
-    skill?: string
-    route?: Route
     reveal?: boolean
 }
 
 const REVEAL_DURATION_MS = 7200
+const SKY_SELECTION_HOLD_MS = 900
+const SKY_DESCENT_OVERLAY_MS = 1200
 const LOGIN_STREAK_STORAGE_KEY = "peak_login_streak"
 const JOURNEY_STATS_STORAGE_KEY_PREFIX = "peak_journey_stats"
 const ENDGAME_SEEN_STORAGE_KEY_PREFIX = "peak_endgame_seen"
@@ -121,10 +122,6 @@ function formatDuration(ms: number | null): string {
     return `${minutes}m ${seconds}s`
 }
 
-function routeStorageScope(value: string): string {
-    return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "default"
-}
-
 // Catmull-Rom → cubic bezier. Produces a smooth SVG path through every point.
 function smoothPath(pts: { x: number; y: number }[]): string {
     if (pts.length < 2) return ""
@@ -144,23 +141,102 @@ function smoothPath(pts: { x: number; y: number }[]): string {
     return d
 }
 
+const SKY_WORD_POSITIONS = [
+    { x: 18, y: 24 },
+    { x: 55, y: 18 },
+    { x: 80, y: 31 },
+    { x: 30, y: 45 },
+    { x: 66, y: 50 },
+    { x: 20, y: 67 },
+    { x: 48, y: 74 },
+    { x: 84, y: 70 },
+    { x: 40, y: 29 },
+    { x: 72, y: 82 },
+]
+
+function mountainWordStyle(mountainId: string, index: number): CSSProperties {
+    const slot = SKY_WORD_POSITIONS[index % SKY_WORD_POSITIONS.length]
+    const hash = Array.from(mountainId).reduce((sum, char, charIndex) => {
+        return sum + char.charCodeAt(0) * (charIndex + 1)
+    }, 0)
+    const xOffset = ((hash % 17) - 8) * 0.45
+    const yOffset = ((Math.floor(hash / 17) % 15) - 7) * 0.45
+    const x = Math.min(88, Math.max(12, slot.x + xOffset))
+    const y = Math.min(84, Math.max(14, slot.y + yOffset))
+
+    return {
+        ["--float-index"]: index,
+        ["--word-x"]: `${x}%`,
+        ["--word-y"]: `${y}%`,
+        ["--float-distance"]: `${0.45 + (hash % 7) * 0.08}rem`,
+        ["--float-drift"]: `${((Math.floor(hash / 7) % 9) - 4) * 0.12}rem`,
+    } as CSSProperties
+}
+
 function MountainPage() {
+    const { mountainId } = useParams()
+    const { mountains, activeMountain, activeMountainId, selectMountain } = useMountain()
     const location = useLocation()
     const navigate = useNavigate()
     const navigationState = location.state as MountainLocationState | null
-    const skill = navigationState?.skill
-    const initialRoute = navigationState?.route ?? null
-    const [route, setRoute] = useState<Route | null>(initialRoute)
-    const [error, setError] = useState<string | null>(null)
-    const [revealing, setRevealing] = useState(Boolean(navigationState?.reveal && initialRoute))
+    const routeMountain = mountainId
+        ? mountains.find((mountain) => mountain.id === mountainId) ?? null
+        : activeMountain
+    const route = routeMountain?.route ?? null
+    const skill = route?.skill
+    const routeMissing = Boolean(mountainId && !route)
+    const error = routeMissing ? "That mountain is not saved in this browser anymore." : null
+    const [revealing, setRevealing] = useState(false)
     const [loginStreak, setLoginStreak] = useState<LoginStreak>(() => readLoginStreak())
-    const [journeyStats, setJourneyStats] = useState<JourneyStats>(() => readJourneyStats(routeStorageScope(initialRoute?.skill ?? skill ?? "default")))
+    const [journeyStats, setJourneyStats] = useState<JourneyStats>(() => readJourneyStats(routeStorageScope(skill ?? "default")))
     const [showEndgame, setShowEndgame] = useState(false)
     const [generatingNewPeak, setGeneratingNewPeak] = useState(false)
     const [newPeakStatus, setNewPeakStatus] = useState<string | null>(null)
+    const [activeDetours, setActiveDetours] = useState<Detour[]>([])
+    const [skyPickerOpen, setSkyPickerOpen] = useState(false)
+    const [selectedSkyMountainId, setSelectedSkyMountainId] = useState<string | null>(null)
+    const [skyPickerDescending, setSkyPickerDescending] = useState(false)
     const hadCompletedRouteRef = useRef(false)
 
     const { activeIndex, completedWaypoints, isCompleted, progressScope, setProgressScope } = useProgress()
+
+    useEffect(() => {
+        if (!mountainId) return
+        selectMountain(mountainId)
+    }, [mountainId, selectMountain])
+
+    useEffect(() => {
+        if (mountainId || !activeMountainId) return
+        navigate(`/mountain/${activeMountainId}`, { replace: true })
+    }, [activeMountainId, mountainId, navigate])
+
+    useEffect(() => {
+        if (!route || !navigationState?.reveal) return
+        const timeout = window.setTimeout(() => setRevealing(true), 0)
+        return () => window.clearTimeout(timeout)
+    }, [navigationState?.reveal, route])
+
+    useEffect(() => {
+        if (!selectedSkyMountainId) return
+
+        let closeTimeout: number | undefined
+        const timeout = window.setTimeout(() => {
+            setSkyPickerDescending(true)
+            selectMountain(selectedSkyMountainId)
+            navigate(`/mountain/${selectedSkyMountainId}`, { state: { reveal: true } })
+
+            closeTimeout = window.setTimeout(() => {
+                setSkyPickerOpen(false)
+                setSelectedSkyMountainId(null)
+                setSkyPickerDescending(false)
+            }, SKY_DESCENT_OVERLAY_MS)
+        }, SKY_SELECTION_HOLD_MS)
+
+        return () => {
+            window.clearTimeout(timeout)
+            if (closeTimeout !== undefined) window.clearTimeout(closeTimeout)
+        }
+    }, [navigate, selectMountain, selectedSkyMountainId])
 
     useEffect(() => {
         window.localStorage.setItem(LOGIN_STREAK_STORAGE_KEY, JSON.stringify(loginStreak))
@@ -185,6 +261,7 @@ function MountainPage() {
         setGeneratingNewPeak(false)
         setNewPeakStatus(null)
         setProgressScope(nextScope)
+        setActiveDetours(readActiveDetours(nextScope, route.route.map((waypoint) => waypoint.id)))
     }, [route, setProgressScope])
 
     useEffect(() => {
@@ -223,28 +300,18 @@ function MountainPage() {
     const effectiveActiveIndex = progressReady ? activeIndex : 0
     const isWaypointCompleted = (waypointId: number) => progressReady && isCompleted(waypointId)
 
-    useEffect(() => {
-        if (!skill) return
-        if (initialRoute) {
-            setRoute(initialRoute)
-            return
-        }
+    function openSkyPicker() {
+        if (revealing || showEndgame || mountains.length === 0) return
+        setSelectedSkyMountainId(null)
+        setSkyPickerDescending(false)
+        setSkyPickerOpen(true)
+    }
 
-        let isCurrent = true
-        setRoute(null)
-        setError(null)
-
-        generateRoute(skill)
-            .then((generatedRoute) => {
-                if (isCurrent) setRoute(generatedRoute)
-            })
-            .catch((err: unknown) => {
-                if (!isCurrent) return
-                setError(err instanceof Error ? err.message : "route generation failed")
-            })
-
-        return () => { isCurrent = false }
-    }, [skill, initialRoute])
+    function chooseMountain(nextMountainId: string) {
+        if (selectedSkyMountainId) return
+        if (!mountains.some((mountain) => mountain.id === nextMountainId)) return
+        setSelectedSkyMountainId(nextMountainId)
+    }
 
     function openWaypoint(waypoint: WaypointData, index: number) {
         const pos = pickPosition(index, route?.route.length ?? 1)
@@ -261,6 +328,30 @@ function MountainPage() {
         })
     }
 
+    function openDetour(detour: Detour) {
+        if (!route) return
+        const parentIndex = route.route.findIndex((waypoint) => waypoint.id === detour.parentWaypointId)
+        const safeParentIndex = Math.max(0, parentIndex)
+        const parentPos = pickPosition(safeParentIndex, route.route.length)
+        const pos = {
+            x: Math.min(0.88, Math.max(0.12, parentPos.x + (safeParentIndex % 2 === 0 ? 0.12 : -0.12))),
+            y: Math.min(0.92, Math.max(0.08, parentPos.y + 0.035)),
+        }
+
+        navigate("/detail", {
+            state: {
+                detour,
+                mode: "detour",
+                parentWaypoint: route.route[safeParentIndex],
+                index: safeParentIndex,
+                total: route.route.length,
+                skill: route.skill,
+                focus: pos,
+                fullRoute: route,
+            },
+        })
+    }
+
     function climbNewPeak(nextSkill: string) {
         if (generatingNewPeak) return
 
@@ -272,8 +363,22 @@ function MountainPage() {
 
     if (!skill) {
         return (
-            <div className="w-full h-screen bg-black text-white flex flex-col items-center justify-center gap-4">
-                <p className="text-xl">Choose a skill first.</p>
+            <div className="w-full h-screen bg-black/70 text-white flex flex-col items-center justify-center gap-5 px-6 text-center">
+                <p className="text-xl">{error ?? "Choose a skill first."}</p>
+                {mountains.length > 0 && (
+                    <div className="flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-4">
+                        {mountains.map((mountain) => (
+                            <button
+                                key={mountain.id}
+                                type="button"
+                                onClick={() => chooseMountain(mountain.id)}
+                                className="mountain-sky-word mountain-sky-word-inline"
+                            >
+                                {mountain.route.skill}
+                            </button>
+                        ))}
+                    </div>
+                )}
                 <Link to="/" className="rounded px-4 py-2 bg-white text-black font-bold">
                     Back
                 </Link>
@@ -282,12 +387,13 @@ function MountainPage() {
     }
 
     return (
-        <div className={`relative w-full min-h-screen ${showEndgame ? "bg-black" : ""}`}>
+        <div className={`relative w-full min-h-screen ${showEndgame ? "bg-black" : ""} ${skyPickerOpen ? "mountain-sky-picker-active" : ""}`}>
             <div
                 className={
-                    revealing ? "mountain-reveal-stage absolute inset-0" :
+                    (revealing ? "mountain-reveal-stage absolute inset-0" :
                     showEndgame ? "endgame-mountain-stage absolute inset-0" :
-                    "absolute inset-0"
+                    "mountain-stage absolute inset-0") +
+                    (skyPickerOpen ? " mountain-sky-stage-open" : "")
                 }
                 style={revealing ? ({ ["--peak-x"]: peakPos.x, ["--peak-y"]: peakPos.y } as CSSProperties) : undefined}
             >
@@ -322,6 +428,19 @@ function MountainPage() {
                 const ghostPath = smoothPath(positions)
                 const donePath = effectiveActiveIndex > 0 ? smoothPath(positions.slice(0, effectiveActiveIndex + 1)) : null
                 const completedPositions = positions.slice(0, Math.min(effectiveActiveIndex + 1, positions.length))
+                const detourPositions = activeDetours.map((detour) => {
+                    const parentIndex = route.route.findIndex((waypoint) => waypoint.id === detour.parentWaypointId)
+                    const safeParentIndex = Math.max(0, parentIndex)
+                    const parentPos = positions[safeParentIndex] ?? positions[0]
+                    return {
+                        detour,
+                        parentPos,
+                        pos: {
+                            x: Math.min(0.88, Math.max(0.12, parentPos.x + (safeParentIndex % 2 === 0 ? 0.12 : -0.12))),
+                            y: Math.min(0.92, Math.max(0.08, parentPos.y + 0.035)),
+                        },
+                    }
+                })
                 return (
                     <div className="absolute inset-0 z-10">
                         {/* SVG trail — rendered below campfires */}
@@ -407,6 +526,17 @@ function MountainPage() {
                                     ))}
                                 </>
                             )}
+                            {detourPositions.map(({ detour, parentPos, pos }) => (
+                                <path
+                                    key={`detour-line-${detour.id}`}
+                                    d={`M ${(parentPos.x * 100).toFixed(2)},${(parentPos.y * 100).toFixed(2)} Q ${(((parentPos.x + pos.x) / 2) * 100).toFixed(2)},${((Math.min(parentPos.y, pos.y) - 0.025) * 100).toFixed(2)} ${(pos.x * 100).toFixed(2)},${(pos.y * 100).toFixed(2)}`}
+                                    fill="none"
+                                    stroke="rgba(120, 210, 255, 0.56)"
+                                    strokeWidth="0.42"
+                                    strokeLinecap="round"
+                                    strokeDasharray="1 1.6"
+                                />
+                            ))}
                         </svg>
 
                         {/* campfires — rendered above trail */}
@@ -430,6 +560,21 @@ function MountainPage() {
                                 </div>
                             )
                         })}
+                        {detourPositions.map(({ detour, pos }) => (
+                            <div
+                                key={detour.id}
+                                className="absolute -translate-x-1/2 -translate-y-1/2"
+                                style={{ left: `${pos.x * 100}%`, top: `${pos.y * 100}%` }}
+                            >
+                                <Waypoint
+                                    state="active"
+                                    size={64}
+                                    label="?"
+                                    onClick={() => openDetour(detour)}
+                                />
+                                <span className="detour-label">Side trail</span>
+                            </div>
+                        ))}
                     </div>
                 )
             })()}
@@ -450,13 +595,28 @@ function MountainPage() {
             )}
 
             {/* header */}
-            <header className={(revealing || showEndgame ? "mountain-reveal-chrome " : "") + "relative z-20 flex items-center justify-between px-8 py-5"}>
-                <Link to="/" className="text-sm text-white/70 hover:text-white">
+            <header className={(revealing || showEndgame ? "mountain-reveal-chrome " : "") + "relative z-20 grid grid-cols-[1fr_auto_1fr] items-center px-8 py-5"}>
+                <Link to="/" className="justify-self-start text-sm text-white/70 hover:text-white">
                     ← back
                 </Link>
+                {mountains.length > 0 && (
+                    <button
+                        type="button"
+                        onClick={openSkyPicker}
+                        disabled={revealing || showEndgame}
+                        className="mountain-sky-trigger"
+                        aria-expanded={skyPickerOpen}
+                        aria-label="Choose a mountain from the sky"
+                    >
+                        <span className="mountain-sky-trigger-icon" aria-hidden="true">
+                            <span className="mountain-sky-trigger-peak mountain-sky-trigger-peak-back" />
+                            <span className="mountain-sky-trigger-peak mountain-sky-trigger-peak-front" />
+                        </span>
+                    </button>
+                )}
                 {route && (
                     <div
-                        className="mountain-streak-fire"
+                        className="mountain-streak-fire justify-self-end"
                         aria-label={`${loginStreak.count} day login streak`}
                         title={`${loginStreak.count} day login streak`}
                     >
@@ -465,6 +625,51 @@ function MountainPage() {
                     </div>
                 )}
             </header>
+
+            {skyPickerOpen && (
+                <div
+                    className={[
+                        "mountain-sky-picker",
+                        selectedSkyMountainId ? "mountain-sky-picker-selecting" : "",
+                        skyPickerDescending ? "mountain-sky-picker-descending" : "",
+                    ].filter(Boolean).join(" ")}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Choose a mountain"
+                >
+                    <button
+                        type="button"
+                        className="mountain-sky-picker-backdrop"
+                        onClick={() => {
+                            if (selectedSkyMountainId || skyPickerDescending) return
+                            setSkyPickerOpen(false)
+                        }}
+                        aria-label="Return to the current mountain"
+                    />
+                    <div className="mountain-sky-picker-stars" aria-hidden="true">
+                        <StarField mode={skyPickerDescending ? "descent" : "ascent"} />
+                    </div>
+                    <div className="mountain-sky-picker-list">
+                        {mountains.map((mountain, index) => (
+                            <button
+                                key={mountain.id}
+                                type="button"
+                                onClick={() => chooseMountain(mountain.id)}
+                                disabled={Boolean(selectedSkyMountainId)}
+                                className={[
+                                    "mountain-sky-word",
+                                    mountain.id === routeMountain?.id ? "is-active" : "",
+                                    mountain.id === selectedSkyMountainId ? "is-selected" : "",
+                                    selectedSkyMountainId && mountain.id !== selectedSkyMountainId ? "is-hidden" : "",
+                                ].filter(Boolean).join(" ")}
+                                style={mountainWordStyle(mountain.id, index)}
+                            >
+                                {mountain.route.skill}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* loading */}
             {!route && !error && (

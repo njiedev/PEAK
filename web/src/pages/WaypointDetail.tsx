@@ -1,11 +1,19 @@
 import { useLocation, useNavigate } from "react-router-dom"
 import { useRef, useState, type ChangeEvent } from "react"
 import Waypoint from "../components/Waypoint"
-import type { Waypoint as WaypointData, Route, Feedback } from "../../../shared/schema"
+import type { Detour, Waypoint as WaypointData, Route, Feedback } from "../../../shared/schema"
 import mountainImg from "../assets/mountain2.png"
 import { pickPosition } from "../lib/pathMath"
-import { evaluateSubmission } from "../api"
+import { evaluateSubmission, generateDetour } from "../api"
 import { useProgress } from "../lib/ProgressContext"
+import {
+  clearActiveDetour,
+  isDetourCompleted,
+  markDetourCompleted,
+  readActiveDetour,
+  routeStorageScope,
+  saveActiveDetour,
+} from "../lib/detours"
 
 type JourneyStats = {
   totalAttempts: number
@@ -15,6 +23,9 @@ type JourneyStats = {
 
 type DetailLocationState = {
   waypoint?: WaypointData
+  detour?: Detour
+  mode?: "waypoint" | "detour"
+  parentWaypoint?: WaypointData
   index?: number
   total?: number
   skill?: string
@@ -76,44 +87,63 @@ function recordJourneyAttempt(scope: string, taskStartedAt: number | null) {
   localStorage.setItem(journeyStatsKey(scope), JSON.stringify(next))
 }
 
-function routeStorageScope(value: string): string {
-  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "default"
+function waypointStorageKey(kind: "submission" | "feedback", skill: string, waypointId: number | string) {
+  return `peak_${kind}_${routeStorageScope(skill)}_${waypointId}`
 }
 
-function waypointStorageKey(kind: "submission" | "feedback", skill: string, waypointId: number) {
-  return `peak_${kind}_${routeStorageScope(skill)}_${waypointId}`
+function detourAsWaypoint(detour: Detour): WaypointData {
+  return {
+    id: -detour.parentWaypointId,
+    title: detour.title,
+    summary: detour.summary,
+    challenge: detour.challenge,
+    difficulty: detour.difficulty,
+    x: 0,
+    y: 0,
+  }
 }
 
 function WaypointDetail() {
   const location = useLocation()
   const navigate = useNavigate()
   const state = location.state as DetailLocationState | null
-  const wp = state?.waypoint ?? FALLBACK
+  const detour = state?.mode === "detour" ? state.detour : undefined
+  const isDetourMode = Boolean(detour)
+  const parentWaypoint = state?.parentWaypoint
+  const wp = detour ? detourAsWaypoint(detour) : state?.waypoint ?? FALLBACK
+  const storageId = detour?.id ?? wp.id
   const index = state?.index ?? 0
   const total = state?.total ?? 8
   const skill = state?.skill ?? "default"
+  const detourScope = routeStorageScope(skill)
   const focus = state?.focus ?? { x: 0.5, y: 0.5 }
   const fullRoute = state?.fullRoute
   
   const { markCompleted, isCompleted, activeIndex } = useProgress()
-  const alreadyCompleted = isCompleted(wp.id)
+  const alreadyCompleted = detour ? isDetourCompleted(detourScope, detour.id) : isCompleted(wp.id)
 
   const [submission, setSubmission] = useState(() => {
-    return localStorage.getItem(waypointStorageKey("submission", skill, wp.id)) || ""
+    return localStorage.getItem(waypointStorageKey("submission", skill, storageId)) || ""
   })
   const [file, setFile] = useState<File | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [feedback, setFeedback] = useState<Feedback | null>(() => {
-    const saved = localStorage.getItem(waypointStorageKey("feedback", skill, wp.id))
+    const saved = localStorage.getItem(waypointStorageKey("feedback", skill, storageId))
     return saved ? JSON.parse(saved) : null
   })
+  const isChallengeCompleted = alreadyCompleted || Boolean(feedback?.passed)
   const [error, setError] = useState<string | null>(null)
+  const [activeDetour, setActiveDetour] = useState<Detour | null>(() => {
+    if (detour || !state?.waypoint) return null
+    return readActiveDetour(detourScope, state.waypoint.id)
+  })
+  const [generatingDetour, setGeneratingDetour] = useState(false)
   const [showReview, setShowReview] = useState(alreadyCompleted)
   const [isExiting, setIsExiting] = useState(false)
   const taskStartedAtRef = useRef<number | null>(null)
 
-  const isLocked = index > activeIndex
-  const statusKey = alreadyCompleted || feedback?.passed ? "completed" : feedback ? "in_progress" : "not_completed"
+  const isLocked = !isDetourMode && index > activeIndex
+  const statusKey = isChallengeCompleted ? "completed" : feedback ? "in_progress" : "not_completed"
   const status = STATUS_META[statusKey]
 
   const challengeType = wp.challenge.type
@@ -182,7 +212,7 @@ function WaypointDetail() {
   }
 
   async function handleSubmit() {
-    if (submitting || alreadyCompleted || isLocked) return
+    if (submitting || isChallengeCompleted || isLocked) return
     if (isFileChallenge ? !file : !submission.trim()) return
 
     setSubmitting(true)
@@ -210,11 +240,18 @@ function WaypointDetail() {
       })
 
       setFeedback(result)
-      localStorage.setItem(waypointStorageKey("feedback", skill, wp.id), JSON.stringify(result))
-      localStorage.setItem(waypointStorageKey("submission", skill, wp.id), submission)
+      localStorage.setItem(waypointStorageKey("feedback", skill, storageId), JSON.stringify(result))
+      localStorage.setItem(waypointStorageKey("submission", skill, storageId), submission)
       
       if (result.passed) {
-        markCompleted(wp.id)
+        if (detour) {
+          markDetourCompleted(detourScope, detour.id)
+          clearActiveDetour(detourScope, detour.parentWaypointId)
+        } else {
+          markCompleted(wp.id)
+        }
+      } else if (!detour) {
+        await createOrOpenDetour(result)
       }
     } catch (err) {
       console.error("[detail] submission failed", err)
@@ -222,6 +259,74 @@ function WaypointDetail() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  function openActiveDetour(nextDetour: Detour) {
+    const parent = fullRoute?.route.find((waypoint) => waypoint.id === nextDetour.parentWaypointId) ?? wp
+    navigate("/detail", {
+      state: {
+        detour: nextDetour,
+        mode: "detour",
+        parentWaypoint: parent,
+        index,
+        total,
+        skill,
+        focus,
+        fullRoute,
+      },
+    })
+  }
+
+  async function createOrOpenDetour(failedFeedback: Feedback) {
+    if (detour || failedFeedback.passed || generatingDetour) return
+
+    if (activeDetour) {
+      openActiveDetour(activeDetour)
+      return
+    }
+
+    setGeneratingDetour(true)
+    setError(null)
+    try {
+      const nextDetour = await generateDetour({
+        skill,
+        waypoint: wp,
+        feedback: failedFeedback,
+        submissionText: submission || undefined,
+        routeContext: fullRoute,
+      })
+      saveActiveDetour(detourScope, nextDetour)
+      setActiveDetour(nextDetour)
+      openActiveDetour(nextDetour)
+    } catch (err) {
+      console.error("[detail] detour generation failed", err)
+      setError(err instanceof Error ? err.message : "detour generation failed")
+    } finally {
+      setGeneratingDetour(false)
+    }
+  }
+
+  async function handleGenerateDetour() {
+    if (!feedback) return
+    await createOrOpenDetour(feedback)
+  }
+
+  function returnToParentWaypoint() {
+    if (!detour || !parentWaypoint) {
+      goBack()
+      return
+    }
+
+    navigate("/detail", {
+      state: {
+        waypoint: parentWaypoint,
+        index,
+        total,
+        skill,
+        focus,
+        fullRoute,
+      },
+    })
   }
 
   function goBack() {
@@ -318,7 +423,7 @@ function WaypointDetail() {
           <span className="text-base">←</span> back to mountain
         </button>
         <div className="waypoint-kicker">
-          <span>Waypoint {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}</span>
+          <span>{isDetourMode ? "Side trail" : `Waypoint ${String(index + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`}</span>
         </div>
       </header>
 
@@ -328,7 +433,7 @@ function WaypointDetail() {
         <section className="flex flex-1 flex-col gap-6 pt-12">
           <div className="waypoint-kicker">
             <span className="waypoint-kicker-rule" />
-            {index === 0 ? "Base camp" : index === total - 1 ? "The Summit" : "Climbing on"}
+            {isDetourMode ? "Side trail" : index === 0 ? "Base camp" : index === total - 1 ? "The Summit" : "Climbing on"}
           </div>
           <h1 className="waypoint-title">{wp.title}</h1>
           <div className="flex items-center gap-4 text-sm text-stone-200/72">
@@ -407,7 +512,7 @@ function WaypointDetail() {
                   file={file}
                   onChange={handleFile}
                   onClear={() => setFile(null)}
-                  disabled={submitting || alreadyCompleted}
+                  disabled={submitting || isChallengeCompleted}
                 />
               ) : (
                 <textarea
@@ -418,7 +523,7 @@ function WaypointDetail() {
                   }}
                   placeholder="Tell the guide what you did..."
                   rows={4}
-                  disabled={submitting || alreadyCompleted}
+                  disabled={submitting || isChallengeCompleted}
                   className="waypoint-answer"
                 />
               )}
@@ -432,17 +537,31 @@ function WaypointDetail() {
             )}
 
             {feedback && (
-              <div className={`mt-4 rounded-md border px-4 py-3 text-sm ${
-                feedback.passed
-                  ? "border-emerald-300/20 bg-emerald-950/30 text-emerald-100"
-                  : "border-amber-300/20 bg-amber-950/30 text-amber-100"
-              }`}>
-                {feedback.feedback}
-              </div>
+              <>
+                <div className={`mt-4 rounded-md border px-4 py-3 text-sm ${
+                  feedback.passed
+                    ? "border-emerald-300/20 bg-emerald-950/30 text-emerald-100"
+                    : "border-amber-300/20 bg-amber-950/30 text-amber-100"
+                }`}>
+                  {feedback.feedback}
+                </div>
+                {!feedback.passed && !isDetourMode && (
+                  <button
+                    type="button"
+                    onClick={handleGenerateDetour}
+                    disabled={generatingDetour}
+                    className="waypoint-action waypoint-action-detour"
+                  >
+                    <span className="relative z-10">
+                      {generatingDetour ? "Finding a side trail..." : activeDetour ? "Take the side trail" : "Create a side trail"}
+                    </span>
+                  </button>
+                )}
+              </>
             )}
 
             {/* big submit */}
-            {!alreadyCompleted && !isLocked && (
+            {!isChallengeCompleted && !isLocked && (
               <button
                 type="button"
                 onClick={handleSubmit}
@@ -450,19 +569,19 @@ function WaypointDetail() {
                 className="waypoint-action"
               >
                 <span className="relative z-10">
-                  {submitting ? "Sending to the guide..." : "Submit & climb on"}
+                  {submitting ? "Sending to the guide..." : isDetourMode ? "Submit side trail" : "Submit & climb on"}
                 </span>
               </button>
             )}
 
             {/* success state CTA */}
-            {alreadyCompleted && (
+            {isChallengeCompleted && (
               <button
                 type="button"
-                onClick={goBack}
+                onClick={isDetourMode ? returnToParentWaypoint : goBack}
                 className="waypoint-action waypoint-action-complete"
               >
-                <span className="relative z-10">Return to Mountain</span>
+                <span className="relative z-10">{isDetourMode ? "Return to Original Challenge" : "Return to Mountain"}</span>
               </button>
             )}
           </div>

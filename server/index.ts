@@ -3,6 +3,7 @@ import express from 'express'
 import cors from 'cors'
 import generateRouteHandler from './routes/generateRoute'
 import evaluateHandler from './routes/evaluate'
+import generateDetourHandler from './routes/generateDetour'
 
 const app = express()
 const PORT = process.env.PORT ?? 3001
@@ -21,6 +22,7 @@ app.get('/health', (_req, res) => {
 
 app.use('/api/generate-route', generateRouteHandler)
 app.use('/api/evaluate-submission', evaluateHandler)
+app.use('/api/generate-detour', generateDetourHandler)
 
 app.use((_req, res) => {
   res.status(404).json({ ok: false, error: 'not found' })

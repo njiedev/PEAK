@@ -27,4 +27,15 @@ export type Route = {
 export type Feedback = {
   feedback: string
   passed: boolean
+  missingSkill?: string
+  detourHint?: string
+}
+
+export type Detour = {
+  id: string
+  parentWaypointId: number
+  title: string
+  summary: string
+  challenge: Challenge
+  difficulty: 1 | 2 | 3
 }

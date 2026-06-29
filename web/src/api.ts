@@ -1,4 +1,4 @@
-import type { Route, Waypoint, Feedback } from '../../shared/schema'
+import type { Route, Waypoint, Feedback, Detour } from '../../shared/schema'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001'
 
@@ -91,6 +91,41 @@ export async function evaluateSubmission(
 
   console.log('[api] evaluation complete', {
     passed: json.data.passed,
+  })
+
+  return json.data
+}
+
+export async function generateDetour(input: {
+  skill: string
+  waypoint: Waypoint
+  feedback: Feedback
+  submissionText?: string
+  routeContext?: Route
+}): Promise<Detour> {
+  console.log('[api] generating detour', {
+    skill: input.skill,
+    waypointId: input.waypoint.id,
+    hasMissingSkill: !!input.feedback.missingSkill,
+  })
+
+  const response = await fetch(`${API_URL}/api/generate-detour`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(input),
+  })
+
+  const json = (await response.json()) as ApiResponse<Detour>
+
+  if (!response.ok || !json.ok) {
+    throw new Error(json.ok ? 'detour generation failed' : json.error)
+  }
+
+  console.log('[api] detour ready', {
+    detourId: json.data.id,
+    parentWaypointId: json.data.parentWaypointId,
   })
 
   return json.data
