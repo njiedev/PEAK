@@ -1,8 +1,9 @@
-# PEAK
-
 ## Video
 
-[![Watch PEAK](https://img.youtube.com/vi/LJLqLSbx44Y/maxresdefault.jpg)](https://www.youtube.com/watch?v=LJLqLSbx44Y)
+### PEAK
+**[▶ Watch PEAK on YouTube](https://www.youtube.com/watch?v=jRzrAQqbjiY)**
+[![Video preview — click to watch on YouTube](https://img.youtube.com/vi/jRzrAQqbjiY/maxresdefault.jpg)](https://www.youtube.com/watch?v=jRzrAQqbjiY)
+
 
 PEAK is an AI-generated learning app that turns a child's goal into an interactive climb up a mountain. A learner enters something they want to learn, PEAK generates a sequence of hands-on challenges, and each completed waypoint moves them higher toward the summit.
 
